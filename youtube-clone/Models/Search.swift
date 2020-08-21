@@ -41,6 +41,6 @@ struct ThumbnailInfo: Decodable {
 }
 
 struct SearchVideoInfo: Decodable {
-    let videoId: String
+    let videoId: String?
     var statistics: VideoStatistics?
 }

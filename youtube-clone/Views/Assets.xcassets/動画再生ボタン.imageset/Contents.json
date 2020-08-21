@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "動画再生ボタン.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

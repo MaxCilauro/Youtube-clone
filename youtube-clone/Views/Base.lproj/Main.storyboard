@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="youtube_clone" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="me5-bt-soL">
+                                <rect key="frame" x="0.0" y="94" width="414" height="768"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="evM-rE-Tby">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eXn-DD-0e4">
+                                <rect key="frame" x="0.0" y="44" width="414" height="50"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="7jo-4Q-S3E">
+                                        <rect key="frame" x="10" y="0.0" width="394" height="50"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="sjS-2n-4fE">
+                                                <rect key="frame" x="0.0" y="5" width="269" height="40"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="動画再生ボタン" translatesAutoresizingMaskIntoConstraints="NO" id="c0M-Fb-gwu">
+                                                        <rect key="frame" x="0.0" y="0.0" width="50" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="50" id="dwn-bR-CkV"/>
+                                                            <constraint firstAttribute="height" constant="40" id="n1p-Oe-gp6"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Youtube" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SpT-eN-jd8">
+                                                        <rect key="frame" x="50" y="0.0" width="219" height="40"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="749" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="DS3-kd-K9f">
+                                                <rect key="frame" x="269" y="12.5" width="125" height="25"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nW4-rk-1Q9">
+                                                        <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="nW4-rk-1Q9" secondAttribute="height" multiplier="1:1" id="Is4-4g-FuS"/>
+                                                            <constraint firstAttribute="height" constant="25" id="mJd-D1-RJw"/>
+                                                        </constraints>
+                                                        <state key="normal" image="ムービーのアイコン素材"/>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JDD-xw-olf">
+                                                        <rect key="frame" x="50" y="0.0" width="25" height="25"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="JDD-xw-olf" secondAttribute="height" multiplier="1:1" id="Shc-fe-QFU"/>
+                                                        </constraints>
+                                                        <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <state key="normal" image="サーチアイコン"/>
+                                                    </button>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" translatesAutoresizingMaskIntoConstraints="NO" id="v4p-PC-XPO">
+                                                        <rect key="frame" x="100" y="0.0" width="25" height="25"/>
+                                                        <color key="backgroundColor" systemColor="systemPurpleColor" red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" secondItem="v4p-PC-XPO" secondAttribute="height" multiplier="1:1" id="kAh-5K-W8h"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="7jo-4Q-S3E" secondAttribute="bottom" id="7iu-Eu-4ah"/>
+                                    <constraint firstItem="7jo-4Q-S3E" firstAttribute="leading" secondItem="eXn-DD-0e4" secondAttribute="leading" constant="10" id="Dzl-gk-dNe"/>
+                                    <constraint firstAttribute="trailing" secondItem="7jo-4Q-S3E" secondAttribute="trailing" constant="10" id="FU4-75-PbG"/>
+                                    <constraint firstAttribute="height" constant="50" id="Kam-pF-Cr4"/>
+                                    <constraint firstItem="7jo-4Q-S3E" firstAttribute="top" secondItem="eXn-DD-0e4" secondAttribute="top" id="MjS-k4-djB"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="me5-bt-soL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="H0a-pk-qPS"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="me5-bt-soL" secondAttribute="bottom" id="J8Q-JX-5kR"/>
+                            <constraint firstItem="eXn-DD-0e4" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Nyv-S1-93p"/>
+                            <constraint firstItem="me5-bt-soL" firstAttribute="top" secondItem="eXn-DD-0e4" secondAttribute="bottom" id="UhY-9J-Boe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="eXn-DD-0e4" secondAttribute="trailing" id="VTH-G4-asl"/>
+                            <constraint firstItem="eXn-DD-0e4" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="WNw-0s-xMh"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="me5-bt-soL" secondAttribute="trailing" id="hlT-UK-yWS"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="avatarImageView" destination="v4p-PC-XPO" id="Vdh-2X-hr7"/>
+                        <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" width="284" height="374"/>
+        <image name="サーチアイコン" width="384" height="384"/>
+        <image name="ムービーのアイコン素材" width="384" height="384"/>
+        <image name="動画再生ボタン" width="384" height="384"/>
+    </resources>
+</document>

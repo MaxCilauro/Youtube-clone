@@ -34,29 +34,27 @@ class YoutubeClient {
             }
         }
         
-        var url: URL? {
-            return URL(string: stringValue)
+        var url: URL {
+            return URL(string: stringValue)!
         }
     }
     
     func search(q: String, completionHandler: @escaping (Bool) -> Void) {
-        guard let url = Endpoints.search(q: q).url else {
-            completionHandler(false)
-            return
-        }
-        
-        AF.request(url)
+        AF.request(Endpoints.search(q: q).url)
             .responseDecodable(of: Search.self) { response in
                 guard let video = response.value else {
                     completionHandler(false)
                     return
                 }
-                self.searchItems = video.items
+                self.searchItems = video.items.filter({ (item) -> Bool in
+                    item.id.videoId != nil
+                })
                 self.loadImages(completionHandler: completionHandler)
         }
     }
     
     func loadImages(completionHandler: @escaping (Bool) -> Void) {
+        // this looks terrible
         let group = DispatchGroup() // refactor to use Rx or Compose
         var channelImages: [String] = []
         var videoIds: [String] = []
@@ -68,7 +66,9 @@ class YoutubeClient {
                 group.leave()
             }
             
-            videoIds.append(item.id.videoId)
+            if let videoId = item.id.videoId {
+                videoIds.append(videoId)
+            }
 
             if channelImages.contains(item.snippet.channelId) {
                continue
@@ -77,44 +77,42 @@ class YoutubeClient {
             channelImages.append(item.snippet.channelId)
         }
         
-        if let channelsUrl = Endpoints.channels(id: channelImages.joined(separator: ",")).url {
-            group.enter()
-            AF.request(channelsUrl).responseDecodable(of: Channel.self) { response in
-                guard let channels = response.value else {
-                    group.leave()
-                    return
-                }
-                
-                channels.items.forEach { (item) in
-                    group.enter()
-                    AF.request(item.snippet.thumbnails.medium.url).response { (response) in
-                        self.channelImages[item.id] = response.data
-                        group.leave()
-                    }
-                }
+        let channelsUrl = Endpoints.channels(id: channelImages.joined(separator: ",")).url
+        group.enter()
+        AF.request(channelsUrl).responseDecodable(of: Channel.self) { response in
+            guard let channels = response.value else {
                 group.leave()
+                return
             }
+            
+            channels.items.forEach { (item) in
+                group.enter()
+                AF.request(item.snippet.thumbnails.medium.url).response { (response) in
+                    self.channelImages[item.id] = response.data
+                    group.leave()
+                }
+            }
+            group.leave()
         }
         
-        if let videosUrl = Endpoints.videos(id: videoIds.joined(separator: ",")).url {
-            group.enter()
-            AF.request(videosUrl).responseDecodable(of: Video.self) { response in
-                guard let videos = response.value else {
-                    group.leave()
-                    return
-                }
-                
-                videos.items.forEach { (item) in
-                    self.videoMetadata[item.id] = item.statistics
-                }
+        let videosUrl = Endpoints.videos(id: videoIds.joined(separator: ",")).url
+        group.enter()
+        AF.request(videosUrl).responseDecodable(of: Video.self) { response in
+            guard let videos = response.value else {
                 group.leave()
+                return
             }
+            
+            videos.items.forEach { (item) in
+                self.videoMetadata[item.id] = item.statistics
+            }
+            group.leave()
         }
         
         group.notify(queue: .main) {
             for (index, _) in self.searchItems.enumerated() {
                 self.searchItems[index].snippet.channelImage = self.channelImages[self.searchItems[index].snippet.channelId]
-                self.searchItems[index].id.statistics = self.videoMetadata[self.searchItems[index].id.videoId]
+                self.searchItems[index].id.statistics = self.videoMetadata[self.searchItems[index].id.videoId ?? ""]
             }
 
             completionHandler(true)

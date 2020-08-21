@@ -17,14 +17,14 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="lh7-Jo-51f">
-                        <rect key="frame" x="0.0" y="15" width="450" height="253"/>
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="253"/>
                         <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="lh7-Jo-51f" secondAttribute="height" multiplier="1:0.5625" id="fS1-Ob-gH4"/>
                         </constraints>
                     </imageView>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ZAe-Tj-Zvs">
-                        <rect key="frame" x="10" y="278" width="40" height="40"/>
+                        <rect key="frame" x="10" y="263" width="40" height="40"/>
                         <color key="backgroundColor" systemColor="systemPurpleColor" red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="ZAe-Tj-Zvs" secondAttribute="height" multiplier="1:1" id="71h-rb-2R2"/>
@@ -32,7 +32,7 @@
                         </constraints>
                     </imageView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="YYs-qu-UBQ">
-                        <rect key="frame" x="60" y="278" width="380" height="52"/>
+                        <rect key="frame" x="60" y="263" width="380" height="52"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="タイトルがここに入るます" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uVB-Ho-Abl">
                                 <rect key="frame" x="0.0" y="0.0" width="380" height="18"/>
@@ -63,7 +63,7 @@
                     <constraint firstAttribute="trailing" secondItem="lh7-Jo-51f" secondAttribute="trailing" id="XNp-LC-lEY"/>
                     <constraint firstItem="YYs-qu-UBQ" firstAttribute="leading" secondItem="ZAe-Tj-Zvs" secondAttribute="trailing" constant="10" id="i2A-Cm-eLi"/>
                     <constraint firstItem="YYs-qu-UBQ" firstAttribute="top" secondItem="lh7-Jo-51f" secondAttribute="bottom" constant="10" id="iLF-lS-3pK"/>
-                    <constraint firstItem="lh7-Jo-51f" firstAttribute="top" secondItem="YYQ-jd-bPI" secondAttribute="top" constant="15" id="igt-Fh-jmF"/>
+                    <constraint firstItem="lh7-Jo-51f" firstAttribute="top" secondItem="YYQ-jd-bPI" secondAttribute="top" id="igt-Fh-jmF"/>
                     <constraint firstItem="ZAe-Tj-Zvs" firstAttribute="top" secondItem="lh7-Jo-51f" secondAttribute="bottom" constant="10" id="pyI-24-iaX"/>
                 </constraints>
             </collectionViewCellContentView>

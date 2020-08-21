@@ -11,15 +11,16 @@ import UIKit
 class ViewController: UIViewController {
     let youtubeClient = YoutubeClient()
     @IBOutlet weak var videoListCollectionView: UICollectionView!
+    @IBOutlet weak var avatarImageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         videoListCollectionView.delegate = self
         videoListCollectionView.dataSource = self
-
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
         videoListCollectionView.register(UINib(nibName: "VideoListCell", bundle: nil), forCellWithReuseIdentifier: VideoListCell.identifier)
-        youtubeClient.search(q: "lebron") { (success) in
+        youtubeClient.search(q: "honkai") { (success) in
             guard success else { return }
             
             self.videoListCollectionView.reloadData()
@@ -32,7 +33,7 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = self.view.frame.width
         
-        return .init(width: width, height: width)
+        return .init(width: width, height: width - 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
