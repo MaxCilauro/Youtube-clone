@@ -7,10 +7,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Home View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="youtube_clone" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="HomeViewController" customModule="youtube_clone" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -81,7 +81,7 @@
                                         </subviews>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="7jo-4Q-S3E" secondAttribute="bottom" id="7iu-Eu-4ah"/>
                                     <constraint firstItem="7jo-4Q-S3E" firstAttribute="leading" secondItem="eXn-DD-0e4" secondAttribute="leading" constant="10" id="Dzl-gk-dNe"/>
@@ -105,6 +105,8 @@
                     </view>
                     <connections>
                         <outlet property="avatarImageView" destination="v4p-PC-XPO" id="Vdh-2X-hr7"/>
+                        <outlet property="headerHeightConstraint" destination="Kam-pF-Cr4" id="hZP-0i-dPd"/>
+                        <outlet property="headerTopConstraint" destination="WNw-0s-xMh" id="82r-mT-7cz"/>
                         <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
                     </connections>
                 </viewController>

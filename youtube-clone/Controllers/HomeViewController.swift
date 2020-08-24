@@ -8,10 +8,15 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-    let youtubeClient = YoutubeClient()
+class HomeViewController: UIViewController {
+    private let youtubeClient = YoutubeClient()
+    private var lastContentOffset: CGFloat = 0
+    private var isUp: Bool = false
+
     @IBOutlet weak var videoListCollectionView: UICollectionView!
     @IBOutlet weak var avatarImageView: UIImageView!
+    @IBOutlet weak var headerTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var headerHeightConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +34,34 @@ class ViewController: UIViewController {
     
 }
 
-extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension HomeViewController: UIScrollViewDelegate {
+    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        print("last: ", lastContentOffset, "current: ", scrollView.contentOffset.y)
+        if (headerTopConstraint.constant < 0 && isUp) {
+            headerTopConstraint.constant = 0
+                
+            UIView.animate(withDuration: 0.3,
+                           delay: 0,
+                           options: [],
+                           animations: { [weak self] in
+                                self?.view.layoutIfNeeded()
+                            },
+                           completion: nil)
+        }
+    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let currentContentOffset = scrollView.contentOffset.y
+        
+        if headerTopConstraint.constant > -headerHeightConstraint.constant && !isUp && currentContentOffset > 0 {
+            headerTopConstraint.constant -= 4
+        }
+        
+        isUp = lastContentOffset > currentContentOffset
+        lastContentOffset = currentContentOffset
+    }
+}
+
+extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = self.view.frame.width
         
