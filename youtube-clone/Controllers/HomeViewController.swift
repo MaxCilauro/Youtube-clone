@@ -13,6 +13,7 @@ class HomeViewController: UIViewController {
     private var lastContentOffset: CGFloat = 0
     private var isUp: Bool = false
 
+    @IBOutlet weak var headerView: UIView!
     @IBOutlet weak var videoListCollectionView: UICollectionView!
     @IBOutlet weak var avatarImageView: UIImageView!
     @IBOutlet weak var headerTopConstraint: NSLayoutConstraint!
@@ -35,25 +36,42 @@ class HomeViewController: UIViewController {
 }
 
 extension HomeViewController: UIScrollViewDelegate {
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        print("last: ", lastContentOffset, "current: ", scrollView.contentOffset.y)
-        if (headerTopConstraint.constant < 0 && isUp) {
-            headerTopConstraint.constant = 0
-                
-            UIView.animate(withDuration: 0.3,
-                           delay: 0,
-                           options: [],
-                           animations: { [weak self] in
-                                self?.view.layoutIfNeeded()
-                            },
-                           completion: nil)
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let headerHalfHeight = -self.headerHeightConstraint.constant / 2
+        let currentTopConstrain = self.headerTopConstraint.constant
+        
+        if (currentTopConstrain == 0 || currentTopConstrain == -self.headerHeightConstraint.constant) {
+            return
+        }
+        
+        if currentTopConstrain > headerHalfHeight {
+            UIView.animate(withDuration: 0.1) {
+                self.headerView.alpha = 1
+                self.headerTopConstraint.constant = 0
+                self.view.setNeedsLayout()
+            }
+            return
+        }
+        
+        UIView.animate(withDuration: 0.1) {
+            self.headerView.alpha = 0
+            self.headerTopConstraint.constant = -self.headerHeightConstraint.constant
+            self.view.setNeedsLayout()
         }
     }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let steps: CGFloat = 5
         let currentContentOffset = scrollView.contentOffset.y
-        
+        let alphaRatio = 1 / (headerHeightConstraint.constant / steps)
         if headerTopConstraint.constant > -headerHeightConstraint.constant && !isUp && currentContentOffset > 0 {
-            headerTopConstraint.constant -= 4
+            headerTopConstraint.constant -= steps
+            headerView.alpha -= alphaRatio
+        }
+        
+        if isUp && headerTopConstraint.constant < 0 && currentContentOffset <= headerHeightConstraint.constant {
+            headerTopConstraint.constant += steps
+            headerView.alpha += alphaRatio
         }
         
         isUp = lastContentOffset > currentContentOffset

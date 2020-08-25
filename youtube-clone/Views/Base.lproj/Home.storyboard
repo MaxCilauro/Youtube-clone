@@ -107,6 +107,7 @@
                         <outlet property="avatarImageView" destination="v4p-PC-XPO" id="Vdh-2X-hr7"/>
                         <outlet property="headerHeightConstraint" destination="Kam-pF-Cr4" id="hZP-0i-dPd"/>
                         <outlet property="headerTopConstraint" destination="WNw-0s-xMh" id="82r-mT-7cz"/>
+                        <outlet property="headerView" destination="eXn-DD-0e4" id="n2y-Wv-hrQ"/>
                         <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
                     </connections>
                 </viewController>
