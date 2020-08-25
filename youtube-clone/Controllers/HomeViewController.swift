@@ -36,8 +36,19 @@ class HomeViewController: UIViewController {
 }
 
 extension HomeViewController: UIScrollViewDelegate {
+    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        if (isUp && headerTopConstraint.constant == -headerHeightConstraint.constant) {
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                self?.headerTopConstraint.constant = 0
+                self?.headerView.alpha = 1
+                self?.view.layoutIfNeeded()
+            }
+        }
+    }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        let headerHalfHeight = -self.headerHeightConstraint.constant / 2
+        let headerHeight = self.headerHeightConstraint.constant
+        let headerHalfHeight = -headerHeight / 2
         let currentTopConstrain = self.headerTopConstraint.constant
         
         if (currentTopConstrain == 0 || currentTopConstrain == -self.headerHeightConstraint.constant) {
@@ -45,18 +56,18 @@ extension HomeViewController: UIScrollViewDelegate {
         }
         
         if currentTopConstrain > headerHalfHeight {
-            UIView.animate(withDuration: 0.1) {
-                self.headerView.alpha = 1
-                self.headerTopConstraint.constant = 0
-                self.view.setNeedsLayout()
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                self?.headerView.alpha = 1
+                self?.headerTopConstraint.constant = 0
+                self?.view.setNeedsLayout()
             }
             return
         }
-        
-        UIView.animate(withDuration: 0.1) {
-            self.headerView.alpha = 0
-            self.headerTopConstraint.constant = -self.headerHeightConstraint.constant
-            self.view.setNeedsLayout()
+
+        UIView.animate(withDuration: 0.1) { [weak self] in
+            self?.headerView.alpha = 0
+            self?.headerTopConstraint.constant = -headerHeight
+            self?.view.setNeedsLayout()
         }
     }
     
