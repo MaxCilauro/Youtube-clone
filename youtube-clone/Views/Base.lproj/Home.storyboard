@@ -68,6 +68,9 @@
                                                         </constraints>
                                                         <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <state key="normal" image="サーチアイコン"/>
+                                                        <connections>
+                                                            <segue destination="t7Q-Sg-0Nm" kind="show" animates="NO" id="7IF-JB-XF1"/>
+                                                        </connections>
                                                     </button>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" translatesAutoresizingMaskIntoConstraints="NO" id="v4p-PC-XPO">
                                                         <rect key="frame" x="100" y="0.0" width="25" height="25"/>
@@ -114,6 +117,16 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
+        </scene>
+        <!--Search-->
+        <scene sceneID="SCf-DS-jFz">
+            <objects>
+                <viewControllerPlaceholder storyboardIdentifier="SearchStoryboard" storyboardName="Search" id="t7Q-Sg-0Nm" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="VxW-ps-NQl"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RTa-pQ-ukP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="817" y="138"/>
         </scene>
     </scenes>
     <resources>
