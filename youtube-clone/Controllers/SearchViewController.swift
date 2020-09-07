@@ -11,27 +11,28 @@ import UIKit
 class SearchViewController: UIViewController  {
     let historyKey = "history"
     let historyTableCellIdentifier = "historyCell"
-    var searchTextView = UITextField()
+    var closeButton = UIBarButtonItem()
+    var searchTextField = UITextField()
     var history: [String] = []
 
     @IBOutlet weak var searchHistoryTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        closeButton = UIBarButtonItem.init(barButtonSystemItem: .close, target: self, action: #selector(clearTextField))
         history = UserDefaults.standard.array(forKey: historyKey) as? [String] ?? []
         setupSearch()
         setupSearchHistory()
     }
     
     func setupSearch() {
-        searchTextView.delegate = self
-        searchTextView.translatesAutoresizingMaskIntoConstraints = true
-        searchTextView.placeholder = "Search on youtube"
-        searchTextView.textAlignment = .left
-        searchTextView.returnKeyType = .search
+        searchTextField.delegate = self
+        searchTextField.translatesAutoresizingMaskIntoConstraints = true
+        searchTextField.placeholder = "Search on youtube"
+        searchTextField.textAlignment = .left
+        searchTextField.returnKeyType = .search
         
-        self.navigationItem.titleView = searchTextView
+        self.navigationItem.titleView = searchTextField
     }
     
     fileprivate func setupSearchHistory() {
@@ -44,7 +45,23 @@ class SearchViewController: UIViewController  {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        searchTextView.becomeFirstResponder()
+        searchTextField.becomeFirstResponder()
+    }
+    
+    @objc func clearTextField() {
+        searchTextField.text = ""
+        isClearButtonVisible(false)
+    }
+    
+    func isClearButtonVisible(_ isVisible: Bool) {
+        if isVisible {
+            if navigationItem.rightBarButtonItem == nil {
+                navigationItem.rightBarButtonItem = closeButton
+            }
+            return
+        }
+        
+        navigationItem.rightBarButtonItem = nil
     }
 }
 
@@ -53,6 +70,18 @@ extension SearchViewController: UITextFieldDelegate {
         guard let text = textField.text else { return false }
         history.append(text)
         UserDefaults.standard.set(history, forKey: historyKey)
+        return true
+    }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if let text = textField.text, let textRange = Range(range, in: text) {
+            let updatedText = text.replacingCharacters(in: textRange, with: string)
+            
+            isClearButtonVisible(updatedText != "")
+            return true
+        }
+        
+        isClearButtonVisible(false)
         return true
     }
 }
@@ -67,7 +96,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = searchHistoryTableView.dequeueReusableCell(withIdentifier: historyTableCellIdentifier, for: indexPath)
 
         cell.imageView?.image = UIImage(systemName: "clock")
-        cell.textLabel?.text = history[indexPath.row] as? String
+        cell.textLabel?.text = history[indexPath.row] as String
 
             return cell
         }
