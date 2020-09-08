@@ -8,12 +8,17 @@
 
 import UIKit
 
+protocol SearchViewControllerDelegate {
+    func performSearchWith(text:String)
+}
+
 class SearchViewController: UIViewController  {
     let historyKey = "history"
     let historyTableCellIdentifier = "historyCell"
     var closeButton = UIBarButtonItem()
     var searchTextField = UITextField()
     var history: [String] = []
+    var delegate: SearchViewControllerDelegate?
 
     @IBOutlet weak var searchHistoryTableView: UITableView!
     
@@ -70,6 +75,9 @@ extension SearchViewController: UITextFieldDelegate {
         guard let text = textField.text else { return false }
         history.append(text)
         UserDefaults.standard.set(history, forKey: historyKey)
+        
+        delegate?.performSearchWith(text: text)
+        self.navigationController?.popViewController(animated: true)
         return true
     }
 

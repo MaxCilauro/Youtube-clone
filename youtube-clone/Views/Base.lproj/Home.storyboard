@@ -69,7 +69,7 @@
                                                         <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <state key="normal" image="サーチアイコン"/>
                                                         <connections>
-                                                            <segue destination="t7Q-Sg-0Nm" kind="show" animates="NO" id="7IF-JB-XF1"/>
+                                                            <action selector="onSearchClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rtP-du-ju8"/>
                                                         </connections>
                                                     </button>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" translatesAutoresizingMaskIntoConstraints="NO" id="v4p-PC-XPO">
@@ -112,6 +112,7 @@
                         <outlet property="headerTopConstraint" destination="WNw-0s-xMh" id="82r-mT-7cz"/>
                         <outlet property="headerView" destination="eXn-DD-0e4" id="n2y-Wv-hrQ"/>
                         <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
+                        <segue destination="t7Q-Sg-0Nm" kind="show" identifier="goToSearch" id="kk5-NC-zhg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

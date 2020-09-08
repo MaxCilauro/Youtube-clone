@@ -45,6 +45,16 @@ class HomeViewController: UIViewController {
         self.navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
+    @IBAction func onSearchClick(_ sender: UIButton) {
+        performSegue(withIdentifier: "goToSearch", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToSearch" {
+            let searchVC = segue.destination as! SearchViewController
+            searchVC.delegate = self
+        }
+    }
 }
 
 extension HomeViewController: UIScrollViewDelegate {
@@ -119,5 +129,12 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         cell.videoItem = youtubeClient.searchItems[indexPath.item]
         
         return cell
+    }
+}
+
+
+extension HomeViewController: SearchViewControllerDelegate {
+    func performSearchWith(text: String) {
+        print("search")
     }
 }
