@@ -68,6 +68,10 @@ class SearchViewController: UIViewController  {
         
         navigationItem.rightBarButtonItem = nil
     }
+    
+    func closeSearch() {
+        self.navigationController?.popViewController(animated: true)
+    }
 }
 
 extension SearchViewController: UITextFieldDelegate {
@@ -77,7 +81,7 @@ extension SearchViewController: UITextFieldDelegate {
         UserDefaults.standard.set(history, forKey: historyKey)
         
         delegate?.performSearchWith(text: text)
-        self.navigationController?.popViewController(animated: true)
+        closeSearch()
         return true
     }
 
@@ -106,6 +110,11 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         cell.imageView?.image = UIImage(systemName: "clock")
         cell.textLabel?.text = history[indexPath.row] as String
 
-            return cell
-        }
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.performSearchWith(text: history[indexPath.row])
+        closeSearch()
+    }
 }
