@@ -11,6 +11,8 @@ import Foundation
 struct Search: Decodable {
   let kind: String
   var items: [Item]
+  
+  static let empty = Search(kind: "", items: [])
 }
 
 struct Item: Decodable {

@@ -6,14 +6,11 @@
 //  Copyright © 2020 Uppercaseme. All rights reserved.
 //
 
-import Foundation
-import Alamofire
+import RxSwift
+import RxCocoa
 
 class YoutubeClient {
   static let apiKey = "AIzaSyAS_uiGtS1N0pwoRYxciYZ-l-xXHZEuMnE"
-  var searchItems: [Item] = []
-  var channelImages: [String: Data] = [:]
-  var videoMetadata: [String: VideoStatistics] = [:]
   
   enum Endpoints {
     static let base = "https://www.googleapis.com/youtube/v3"
@@ -34,88 +31,53 @@ class YoutubeClient {
       }
     }
     
-    var url: URL {
-      return URL(string: stringValue)!
+    var url: URL? {
+      return URL(string: stringValue)
     }
   }
   
-  func search(q: String, completionHandler: @escaping (Bool) -> Void) {
-    AF.request(Endpoints.search(q: q).url)
-      .responseDecodable(of: Search.self) { response in
-        guard let video = response.value else {
-          completionHandler(false)
-          return
-        }
-        self.searchItems = video.items.filter({ (item) -> Bool in
-          item.id.videoId != nil
-        })
-        self.loadImages(completionHandler: completionHandler)
+  func search(q: String) -> Observable<[Item]> {
+    guard let url = Endpoints.search(q: q).url else { return Observable.empty() }
+    
+    let search: Observable<Search> = request(url: url)
+    return search
+      .flatMap { (search) -> Observable<Item> in
+        Observable.from(search.items)
       }
+      .map { (item) -> (Item, Observable<Data>) in
+        let imageMetadata = item.snippet.thumbnails.medium
+        let urlString = imageMetadata.url
+        guard let url = URL(string: urlString) else {
+          throw RequestError.invalidURL(s: urlString)
+        }
+        let request = URLRequest(url: url)
+        
+        return (item, URLSession.shared.rx.data(request: request))
+      }
+      .flatMap { (item, data) -> Observable<Item> in
+        data.map { (data) -> Item in
+          var myItem = item
+          myItem.snippet.thumbnails.medium.image = data
+          return myItem
+        }
+      }
+      .reduce([]) { (acc, Item) -> [Item] in
+        return acc + [Item]
+      }
+      .observeOn(MainScheduler.instance)
   }
   
-  func loadImages(completionHandler: @escaping (Bool) -> Void) {
-    // this looks terrible
-    let group = DispatchGroup() // refactor to use Rx or Combine
-    var channelImages: [String] = []
-    var videoIds: [String] = []
+  private func request<T: Decodable>(url: URL) -> Observable<T> {
+    let urlRequest = URLRequest(url: url)
     
-    for (index, item) in self.searchItems.enumerated() {
-      group.enter()
-      AF.request(item.snippet.thumbnails.medium.url).response { (response) in
-        self.searchItems[index].snippet.thumbnails.medium.image = response.data
-        group.leave()
-      }
-      
-      if let videoId = item.id.videoId {
-        videoIds.append(videoId)
-      }
-      
-      if channelImages.contains(item.snippet.channelId) {
-        continue
-      }
-      
-      channelImages.append(item.snippet.channelId)
-    }
-    
-    let channelsUrl = Endpoints.channels(id: channelImages.joined(separator: ",")).url
-    group.enter()
-    AF.request(channelsUrl).responseDecodable(of: Channel.self) { response in
-      guard let channels = response.value else {
-        group.leave()
-        return
-      }
-      
-      channels.items.forEach { (item) in
-        group.enter()
-        AF.request(item.snippet.thumbnails.medium.url).response { (response) in
-          self.channelImages[item.id] = response.data
-          group.leave()
+    return URLSession.shared.rx.data(request: urlRequest)
+      .map { (data) -> T in
+        guard let response = try? JSONDecoder().decode(T.self, from: data) else {
+          throw RequestError.invalidJSON
         }
+        
+        return response
       }
-      group.leave()
-    }
-    
-    let videosUrl = Endpoints.videos(id: videoIds.joined(separator: ",")).url
-    group.enter()
-    AF.request(videosUrl).responseDecodable(of: Video.self) { response in
-      guard let videos = response.value else {
-        group.leave()
-        return
-      }
-      
-      videos.items.forEach { (item) in
-        self.videoMetadata[item.id] = item.statistics
-      }
-      group.leave()
-    }
-    
-    group.notify(queue: .main) {
-      for (index, _) in self.searchItems.enumerated() {
-        self.searchItems[index].snippet.channelImage = self.channelImages[self.searchItems[index].snippet.channelId]
-        self.searchItems[index].id.statistics = self.videoMetadata[self.searchItems[index].id.videoId ?? ""]
-      }
-      
-      completionHandler(true)
-    }
+      .observeOn(MainScheduler.instance)
   }
 }

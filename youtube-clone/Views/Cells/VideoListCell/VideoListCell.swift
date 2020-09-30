@@ -9,23 +9,23 @@
 import UIKit
 
 class VideoListCell: UICollectionViewCell {
-  static let identifier = "videoCell"
-  
-  var videoItem: Item? {
-    didSet {
-      guard let videoItem = videoItem,
-            let thumbnailData = videoItem.snippet.thumbnails.medium.image,
-            let channelImage = videoItem.snippet.channelImage else {
-        return
-      }
-      
-      thumbnailImageView.image = UIImage(data: thumbnailData)
-      channelImageView.image = UIImage(data: channelImage)
-      
-      titleLabel.text = videoItem.snippet.title
-      
-      channelName.text = videoItem.snippet.channelTitle
-      metadataLabel.text = getMetadata()
+    static let identifier = "videoCell"
+    
+    var videoItem: Item? {
+        didSet {
+            guard let videoItem = videoItem,
+                let thumbnailData = videoItem.snippet.thumbnails.medium.image else {
+                    return
+            }
+            
+            thumbnailImageView.image = UIImage(data: thumbnailData)
+            // channelImageView.image = UIImage(data: channelImage)
+            
+            titleLabel.text = videoItem.snippet.title
+
+            channelName.text = videoItem.snippet.channelTitle
+            metadataLabel.text = getMetadata()
+        }
     }
   }
   @IBOutlet weak var thumbnailImageView: UIImageView!

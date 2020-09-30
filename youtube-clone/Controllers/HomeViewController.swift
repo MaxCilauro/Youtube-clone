@@ -7,11 +7,15 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class HomeViewController: UIViewController {
   private let youtubeClient = YoutubeClient()
   private var lastContentOffset: CGFloat = 0
   private var isUp: Bool = false
+  private let bag = DisposeBag()
+  private let youtubeItems = BehaviorRelay<[Item]>(value: [])
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -26,11 +30,16 @@ class HomeViewController: UIViewController {
     videoListCollectionView.dataSource = self
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     videoListCollectionView.register(UINib(nibName: "VideoListCell", bundle: nil), forCellWithReuseIdentifier: VideoListCell.identifier)
-    youtubeClient.search(q: "honkai") { (success) in
-      guard success else { return }
-      
-      self.videoListCollectionView.reloadData()
-    }
+    
+    youtubeItems
+      .asObservable()
+      .subscribe(onNext: { [weak self] _ in
+        self?.videoListCollectionView.reloadData()
+      })
+      .disposed(by: bag)
+    
+    
+    fetchItems()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -54,6 +63,12 @@ class HomeViewController: UIViewController {
       let searchVC = segue.destination as! SearchViewController
       searchVC.delegate = self
     }
+  }
+  
+  func fetchItems() {
+    youtubeClient.search(q: "honkai")
+      .bind(to: youtubeItems)
+      .disposed(by: bag)
   }
 }
 
@@ -120,18 +135,17 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
   }
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    youtubeClient.searchItems.count
+    youtubeItems.value.count
   }
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = videoListCollectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
     
-    cell.videoItem = youtubeClient.searchItems[indexPath.item]
+    cell.videoItem = youtubeItems.value[indexPath.item]
     
     return cell
   }
 }
-
 
 extension HomeViewController: SearchViewControllerDelegate {
   func performSearchWith(text: String) {
