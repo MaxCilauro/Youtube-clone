@@ -55,7 +55,7 @@ class YoutubeClient {
     
     func loadImages(completionHandler: @escaping (Bool) -> Void) {
         // this looks terrible
-        let group = DispatchGroup() // refactor to use Rx or Compose
+        let group = DispatchGroup() // refactor to use Rx or Combine
         var channelImages: [String] = []
         var videoIds: [String] = []
         
