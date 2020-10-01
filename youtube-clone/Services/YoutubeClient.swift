@@ -38,8 +38,8 @@ class YoutubeClient {
   
   func search(q: String) -> Observable<[Item]> {
     guard let url = Endpoints.search(q: q).url else { return Observable.empty() }
+    let search: Observable<Search> = Request.fetchJSON(url: url)
     
-    let search: Observable<Search> = request(url: url)
     return search
       .flatMap { (search) -> Observable<Item> in
         Observable.from(search.items)
@@ -50,9 +50,8 @@ class YoutubeClient {
         guard let url = URL(string: urlString) else {
           throw RequestError.invalidURL(s: urlString)
         }
-        let request = URLRequest(url: url)
         
-        return (item, URLSession.shared.rx.data(request: request))
+        return (item, Request.fetch(url: url))
       }
       .flatMap { (item, data) -> Observable<Item> in
         data.map { (data) -> Item in
@@ -63,20 +62,6 @@ class YoutubeClient {
       }
       .reduce([]) { (acc, Item) -> [Item] in
         return acc + [Item]
-      }
-      .observeOn(MainScheduler.instance)
-  }
-  
-  private func request<T: Decodable>(url: URL) -> Observable<T> {
-    let urlRequest = URLRequest(url: url)
-    
-    return URLSession.shared.rx.data(request: urlRequest)
-      .map { (data) -> T in
-        guard let response = try? JSONDecoder().decode(T.self, from: data) else {
-          throw RequestError.invalidJSON
-        }
-        
-        return response
       }
       .observeOn(MainScheduler.instance)
   }
