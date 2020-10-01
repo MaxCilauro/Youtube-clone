@@ -9,38 +9,38 @@
 import Foundation
 
 struct Search: Decodable {
-    let kind: String
-    var items: [Item]
+  let kind: String
+  var items: [Item]
 }
 
 struct Item: Decodable {
-    var id: SearchVideoInfo
-    var snippet: Snippet
+  var id: SearchVideoInfo
+  var snippet: Snippet
 }
 
 struct Snippet: Decodable {
-    let title: String
-    let channelId: String
-    var channelImage: Data?
-    let description: String
-    let publishedAt: String
-    var thumbnails: Thumbnail
-    let channelTitle: String
+  let title: String
+  let channelId: String
+  var channelImage: Data?
+  let description: String
+  let publishedAt: String
+  var thumbnails: Thumbnail
+  let channelTitle: String
 }
 
 struct Thumbnail: Decodable {
-    var medium: ThumbnailInfo
-    let high: ThumbnailInfo
+  var medium: ThumbnailInfo
+  let high: ThumbnailInfo
 }
 
 struct ThumbnailInfo: Decodable {
-    let url: String
-    let width: Int?
-    let height: Int?
-    var image: Data?
+  let url: String
+  let width: Int?
+  let height: Int?
+  var image: Data?
 }
 
 struct SearchVideoInfo: Decodable {
-    let videoId: String?
-    var statistics: VideoStatistics?
+  let videoId: String?
+  var statistics: VideoStatistics?
 }
