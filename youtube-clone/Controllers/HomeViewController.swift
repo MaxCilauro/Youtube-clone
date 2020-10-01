@@ -15,7 +15,7 @@ class HomeViewController: UIViewController {
   private var lastContentOffset: CGFloat = 0
   private var isUp: Bool = false
   private let bag = DisposeBag()
-  private let youtubeItems = BehaviorRelay<[Item]>(value: [])
+  private let youtubeItems = BehaviorRelay<[VideoItem]>(value: [])
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -33,8 +33,13 @@ class HomeViewController: UIViewController {
     
     youtubeItems
       .asObservable()
-      .subscribe(onNext: { [weak self] _ in
+      .subscribe(onNext: { [weak self] el in
+        print("next", el.count)
         self?.videoListCollectionView.reloadData()
+      }, onError: { (error) in
+        print(error)
+      }, onDisposed: {
+        print("disposed")
       })
       .disposed(by: bag)
     
@@ -66,9 +71,14 @@ class HomeViewController: UIViewController {
   }
   
   func fetchItems() {
-    youtubeClient.search(q: "honkai")
+    youtubeClient
+      .getMostPopularVideos()
+      .reduce([]) { (acc, videoItem) -> [VideoItem] in
+        acc + [videoItem]
+      }
       .bind(to: youtubeItems)
       .disposed(by: bag)
+      
   }
 }
 

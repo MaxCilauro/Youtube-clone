@@ -17,7 +17,6 @@
 		3A90A3E424FEBE7200B637C2 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A90A3E324FEBE7200B637C2 /* SearchViewController.swift */; };
 		3AB2D00D24EB22DE003A3D2B /* Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2D00C24EB22DE003A3D2B /* Channel.swift */; };
 		3AB2D00F24EC4AB0003A3D2B /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB2D00E24EC4AB0003A3D2B /* Video.swift */; };
-		3AC4F578252516CD00C035CB /* RequestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F577252516CD00C035CB /* RequestError.swift */; };
 		3AC4F5802525E26800C035CB /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F57F2525E26800C035CB /* Request.swift */; };
 		3AD5706E24E30EE300B7A7B2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD5706D24E30EE300B7A7B2 /* AppDelegate.swift */; };
 		3AD5707024E30EE300B7A7B2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD5706F24E30EE300B7A7B2 /* SceneDelegate.swift */; };
@@ -48,7 +47,6 @@
 		3A90A3E324FEBE7200B637C2 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		3AB2D00C24EB22DE003A3D2B /* Channel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Channel.swift; sourceTree = "<group>"; };
 		3AB2D00E24EC4AB0003A3D2B /* Video.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
-		3AC4F577252516CD00C035CB /* RequestError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestError.swift; sourceTree = "<group>"; };
 		3AC4F57F2525E26800C035CB /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		3AD5706A24E30EE300B7A7B2 /* youtube-clone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "youtube-clone.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AD5706D24E30EE300B7A7B2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -167,7 +165,6 @@
 				3ADC444024E47EE400266C5F /* Search.swift */,
 				3AB2D00C24EB22DE003A3D2B /* Channel.swift */,
 				3AB2D00E24EC4AB0003A3D2B /* Video.swift */,
-				3AC4F577252516CD00C035CB /* RequestError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -359,7 +356,6 @@
 				3AD5707024E30EE300B7A7B2 /* SceneDelegate.swift in Sources */,
 				3ADC444124E47EE400266C5F /* Search.swift in Sources */,
 				3AF43D5C24EF03D600529106 /* BaseTabBarViewController.swift in Sources */,
-				3AC4F578252516CD00C035CB /* RequestError.swift in Sources */,
 				3AF43D6024F03FE200529106 /* UIImage-Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

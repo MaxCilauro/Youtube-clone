@@ -9,14 +9,14 @@
 import Foundation
 
 struct Channel: Decodable {
-  let items: [ChannelInfo]
+    let items: [ChannelItem]
 }
 
-struct ChannelInfo: Decodable {
-  let id: String
-  let snippet: ChannelSnippet
+struct ChannelItem: Decodable {
+    let id: String
+    var snippet: ChannelSnippet
 }
 
 struct ChannelSnippet: Decodable {
-  let thumbnails: Thumbnail
+    var thumbnails: Thumbnail
 }

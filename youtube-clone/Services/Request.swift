@@ -11,6 +11,11 @@ import RxSwift
 import RxCocoa
 
 class Request {
+  enum RequestError: Error {
+    case invalidJSON
+    case invalidURL(string: String?)
+  }
+  
   static func fetch (url: URL) -> Observable<Data> {
     URLSession.shared.rx
       .data(request: URLRequest(url: url))
@@ -22,7 +27,7 @@ class Request {
       guard let response = try? JSONDecoder().decode(T.self, from: data) else {
         throw RequestError.invalidJSON
       }
-      
+      print(response)
       return response
     }
     .observeOn(MainScheduler.instance)

@@ -8,13 +8,14 @@
 
 import Foundation
 
-struct Video: Decodable {
-  var items: [VideoInfo]
+struct VideoResponse: Decodable {
+  var items: [VideoItem]
 }
 
-struct VideoInfo: Decodable {
+struct VideoItem: Decodable {
   let id: String
-  var statistics: VideoStatistics
+  var snippet: Snippet
+  var statistics: VideoStatistics?
 }
 
 struct VideoStatistics: Decodable {

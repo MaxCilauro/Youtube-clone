@@ -9,23 +9,23 @@
 import UIKit
 
 class VideoListCell: UICollectionViewCell {
-    static let identifier = "videoCell"
-    
-    var videoItem: Item? {
-        didSet {
-            guard let videoItem = videoItem,
-                let thumbnailData = videoItem.snippet.thumbnails.medium.image else {
-                    return
-            }
-            
-            thumbnailImageView.image = UIImage(data: thumbnailData)
-            // channelImageView.image = UIImage(data: channelImage)
-            
-            titleLabel.text = videoItem.snippet.title
-
-            channelName.text = videoItem.snippet.channelTitle
-            metadataLabel.text = getMetadata()
-        }
+  static let identifier = "videoCell"
+  
+  var videoItem: VideoItem? {
+    didSet {
+      guard let videoItem = videoItem,
+            let thumbnailData = videoItem.snippet.thumbnails.medium.image,
+            let channelImageData = videoItem.snippet.channelImage else {
+        return
+      }
+      
+      thumbnailImageView.image = UIImage(data: thumbnailData)
+       channelImageView.image = UIImage(data: channelImageData)
+      
+      titleLabel.text = videoItem.snippet.title
+      
+      channelName.text = videoItem.snippet.channelTitle
+      metadataLabel.text = getMetadata()
     }
   }
   @IBOutlet weak var thumbnailImageView: UIImageView!
@@ -41,7 +41,7 @@ class VideoListCell: UICollectionViewCell {
   }
   
   func getMetadata() -> String {
-    guard let item = videoItem, let stats = item.id.statistics else { return "" }
+    guard let item = videoItem, let stats = item.statistics else { return "" }
     let views = stats.viewCount
     let dateFormatter = ISO8601DateFormatter()
     let date = dateFormatter.date(from: item.snippet.publishedAt)!
