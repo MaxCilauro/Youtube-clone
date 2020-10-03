@@ -15,7 +15,7 @@ class HomeViewController: UIViewController {
   private var lastContentOffset: CGFloat = 0
   private var isUp: Bool = false
   private let bag = DisposeBag()
-  private let youtubeItems = BehaviorRelay<[VideoItem]>(value: [])
+  private let youtubeItems = BehaviorRelay<[Video]>(value: [])
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -73,9 +73,6 @@ class HomeViewController: UIViewController {
   func fetchItems() {
     youtubeClient
       .getMostPopularVideos()
-      .reduce([]) { (acc, videoItem) -> [VideoItem] in
-        acc + [videoItem]
-      }
       .bind(to: youtubeItems)
       .disposed(by: bag)
       
@@ -151,7 +148,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = videoListCollectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
     
-    cell.videoItem = youtubeItems.value[indexPath.item]
+    cell.video = youtubeItems.value[indexPath.item]
     
     return cell
   }

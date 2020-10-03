@@ -39,34 +39,35 @@ class YoutubeClient {
     }
   }
   
-  func getMostPopularVideos() -> Observable<VideoItem> {
+  func getMostPopularVideos() -> Observable<[Video]> {
     guard let url = Endpoints.popular.url else { return Observable.empty() }
-    let videoResponse: Observable<VideoResponse> = Request.fetchJSON(url: url)
-    let videoItems = videoResponse
-      .flatMap { (response) -> Observable<VideoItem> in
-        Observable.from(response.items)
-      }
-    let channels: Observable<[ChannelItem]> = channelsWithThumbnailsFrom(videoItems: videoItems)
-      .reduce([]) { (acc, channelItem) -> [ChannelItem] in
-        acc + [channelItem]
-      }
+    let sharedVideoResponse: Observable<VideoResponse> = Request.fetchJSON(url: url).share(replay: 1)
     
-    let items = videosWithThumbnailsFrom(videoItems: videoItems)
+    let channels: Observable<[Channel]> = channelsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
+    let items: Observable<[VideoItemWithThumbnail]> = videoItemsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
     
-    return Observable.combineLatest(items, channels).flatMap { (videoItem, channels) -> Observable<VideoItem> in
-      guard let currentChannel = channels.first(where: { $0.id == videoItem.snippet.channelId }) else {
-        return Observable.of(videoItem)
+    return Observable
+      .zip(items, channels)
+      .map { (items, channels) -> [Video] in
+        items.map { (item) -> Video in
+          Video(
+            id: item.id,
+            channelId: item.channelId,
+            title: item.title,
+            description: item.description,
+            statistics: item.statistics,
+            channel: channels.first(where: { $0.id == item.channelId }) ?? Channel.empty,
+            thumbnail: item.thumbnail,
+            publishedAt: item.publishedAt)
+        }
       }
-      
-      var currentVideoItem = videoItem
-      currentVideoItem.snippet.channelImage = currentChannel.snippet.thumbnails.medium.image
-
-      return Observable.of(currentVideoItem)
-    }.debug()
   }
   
-  private func channelsWithThumbnailsFrom(videoItems: Observable<VideoItem>) -> Observable<ChannelItem> {
-    videoItems.reduce([]) { (acc, videoItem) -> [String] in
+  private func channelsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[Channel]> {
+    videoResponse.flatMap({ (response) -> Observable<VideoItem> in
+      Observable.from(response.items)
+    })
+    .reduce([]) { (acc, videoItem) -> [String] in
       let channelId = videoItem.snippet.channelId
       
       if acc.contains(channelId) {
@@ -75,46 +76,53 @@ class YoutubeClient {
       
       return acc + [channelId]
     }
-    .flatMap { (channels) -> Observable<ChannelItem> in
+    .flatMap { (channels) -> Observable<[Channel]> in
       guard let channelURL = Endpoints.channels(id: channels.joined(separator: ",")).url else {
         return Observable.empty()
       }
-      print(Endpoints.channels(id: channels.joined(separator: ",")).stringValue)
-      let channelsResponse: Observable<Channel> = Request.fetchJSON(url: channelURL)
-      return channelsResponse.flatMap { (channel) -> Observable<ChannelItem> in
-        Observable.from(channel.items)
+      let channelsResponse: Observable<ChannelResponse> = Request.fetchJSON(url: channelURL)
+      return channelsResponse.flatMap { (response) -> Observable<[Channel]> in
+        Observable.zip(response.items.map({ self.getChannel(channelItem: $0) }))
       }
-    }
-    .flatMap { (channelItem) -> Observable<ChannelItem> in
-      let channelThumbnailURLString = channelItem.snippet.thumbnails.medium.url
-      guard let channelThumbnailURL = URL(string: channelThumbnailURLString) else {
-        return Observable.empty()
-      }
-      return Request.fetch(url: channelThumbnailURL)
-        .flatMap { (image) -> Observable<ChannelItem> in
-          var currentChannel = channelItem
-          currentChannel.snippet.thumbnails.medium.image = image
-          
-          return Observable.of(currentChannel)
-        }
     }
   }
   
-  private func videosWithThumbnailsFrom(videoItems: Observable<VideoItem>) -> Observable<VideoItem> {
-    videoItems.flatMap { (videoItem) -> Observable<VideoItem> in
-      let thumbnailURLString = videoItem.snippet.thumbnails.medium.url
-      guard let thumbnailURL = URL(string: thumbnailURLString) else {
-        throw Request.RequestError.invalidURL(string: thumbnailURLString)
-      }
-      let thumbnailData = Request.fetch(url: thumbnailURL)
-      
-      return thumbnailData
-        .flatMap { (thumbnail) -> Observable<VideoItem> in
-          var myVideoItem = videoItem
-          myVideoItem.snippet.thumbnails.medium.image = thumbnail
-          
-          return Observable.of(myVideoItem)
-        }
+  private func getChannel(channelItem: ChannelItem) -> Observable<Channel> {
+    guard let url = URL(string: channelItem.snippet.thumbnails.medium.url) else {
+      return Observable.empty()
     }
+    
+    return Request.fetch(url: url).map { (imageData) -> Channel in
+      Channel(
+        id: channelItem.id,
+        image: UIImage(data: imageData),
+        title: channelItem.snippet.title,
+        description: channelItem.snippet.description
+      )
+    }
+  }
+  
+  private func videoItemsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[VideoItemWithThumbnail]> {
+    videoResponse.flatMap { (response) -> Observable<[VideoItemWithThumbnail]> in
+      Observable.zip(response.items.map({ self.getVideo(videoItem: $0) }))
+    }
+  }
+  
+  private func getVideo(videoItem: VideoItem) -> Observable<VideoItemWithThumbnail> {
+    let thumbnailURLString = videoItem.snippet.thumbnails.medium.url
+    guard let thumbnailURL = URL(string: thumbnailURLString) else {
+      return Observable.empty()
+    }
+    
+    return Request.fetch(url: thumbnailURL)
+      .map { (imageData) -> VideoItemWithThumbnail in
+        VideoItemWithThumbnail(
+          id: videoItem.id,
+          channelId: videoItem.snippet.channelId,
+          title: videoItem.snippet.title,
+          description: videoItem.snippet.description,
+          statistics: videoItem.statistics,
+          thumbnail: UIImage(data: imageData), publishedAt: videoItem.snippet.publishedAt)
+      }
   }
 }

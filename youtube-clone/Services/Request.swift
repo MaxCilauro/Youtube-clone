@@ -24,11 +24,14 @@ class Request {
   
   static func fetchJSON<T: Decodable>(url: URL) -> Observable<T> {
     fetch(url: url).map { (data) -> T in
-      guard let response = try? JSONDecoder().decode(T.self, from: data) else {
-        throw RequestError.invalidJSON
-      }
+      do {
+      let response = try JSONDecoder().decode(T.self, from: data)
       print(response)
       return response
+      } catch {
+        print(error)
+      }
+      throw RequestError.invalidJSON
     }
     .observeOn(MainScheduler.instance)
   }

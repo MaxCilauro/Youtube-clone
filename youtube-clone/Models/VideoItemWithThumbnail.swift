@@ -1,5 +1,5 @@
 //
-//  Video.swift
+//  VideoItemWithThumbnail.swift
 //  youtube-clone
 //
 //  Created by Yaku on 03/10/2020.
@@ -9,13 +9,12 @@
 import Foundation
 import UIKit
 
-struct Video {
+struct VideoItemWithThumbnail {
   let id: String
   let channelId: String
   let title: String
   let description: String
   let statistics: VideoStatistics
-  let channel: Channel
   let thumbnail: UIImage?
   let publishedAt: String
 }

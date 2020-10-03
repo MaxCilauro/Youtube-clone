@@ -1,5 +1,5 @@
 //
-//  Search.swift
+//  SearchResponse.swift
 //  youtube-clone
 //
 //  Created by Yaku on 12/08/2020.
@@ -8,30 +8,28 @@
 
 import Foundation
 
-struct Search: Decodable {
+struct SearchResponse: Decodable {
   let kind: String
-  var items: [Item]
+  let items: [SearchItem]
   
-  static let empty = Search(kind: "", items: [])
+  static let empty = SearchResponse(kind: "", items: [])
 }
 
-struct Item: Decodable {
-  var id: SearchVideoInfo
-  var snippet: Snippet
+struct SearchItem: Decodable {
+  let snippet: Snippet
 }
 
 struct Snippet: Decodable {
   let title: String
   let channelId: String
-  var channelImage: Data?
   let description: String
   let publishedAt: String
-  var thumbnails: Thumbnail
+  let thumbnails: Thumbnail
   let channelTitle: String
 }
 
 struct Thumbnail: Decodable {
-  var medium: ThumbnailInfo
+  let medium: ThumbnailInfo
   let high: ThumbnailInfo
 }
 
@@ -39,10 +37,8 @@ struct ThumbnailInfo: Decodable {
   let url: String
   let width: Int?
   let height: Int?
-  var image: Data?
 }
 
 struct SearchVideoInfo: Decodable {
   let videoId: String?
-  var statistics: VideoStatistics?
 }
