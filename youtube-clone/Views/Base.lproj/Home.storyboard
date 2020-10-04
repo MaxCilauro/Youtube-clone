@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -17,7 +19,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="me5-bt-soL">
                                 <rect key="frame" x="0.0" y="94" width="414" height="768"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="evM-rE-Tby">
                                     <size key="itemSize" width="128" height="128"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -74,7 +76,7 @@
                                                     </button>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" translatesAutoresizingMaskIntoConstraints="NO" id="v4p-PC-XPO">
                                                         <rect key="frame" x="100" y="0.0" width="25" height="25"/>
-                                                        <color key="backgroundColor" systemColor="systemPurpleColor" red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <color key="backgroundColor" systemColor="systemPurpleColor"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="v4p-PC-XPO" secondAttribute="height" multiplier="1:1" id="kAh-5K-W8h"/>
                                                         </constraints>
@@ -84,7 +86,7 @@
                                         </subviews>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="7jo-4Q-S3E" secondAttribute="bottom" id="7iu-Eu-4ah"/>
                                     <constraint firstItem="7jo-4Q-S3E" firstAttribute="leading" secondItem="eXn-DD-0e4" secondAttribute="leading" constant="10" id="Dzl-gk-dNe"/>
@@ -94,7 +96,8 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="me5-bt-soL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="H0a-pk-qPS"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="me5-bt-soL" secondAttribute="bottom" id="J8Q-JX-5kR"/>
@@ -104,7 +107,6 @@
                             <constraint firstItem="eXn-DD-0e4" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="WNw-0s-xMh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="me5-bt-soL" secondAttribute="trailing" id="hlT-UK-yWS"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="avatarImageView" destination="v4p-PC-XPO" id="Vdh-2X-hr7"/>
@@ -135,5 +137,11 @@
         <image name="サーチアイコン" width="384" height="384"/>
         <image name="ムービーのアイコン素材" width="384" height="384"/>
         <image name="動画再生ボタン" width="384" height="384"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemPurpleColor">
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

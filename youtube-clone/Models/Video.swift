@@ -18,4 +18,6 @@ struct Video {
   let channel: Channel
   let thumbnail: UIImage?
   let publishedAt: String
+  
+  static let empty = Video(id: "", channelId: "", title: "", description: "", statistics: VideoStatistics.empty, channel: Channel.empty, thumbnail: nil, publishedAt: "")
 }

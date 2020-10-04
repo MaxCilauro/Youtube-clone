@@ -15,7 +15,6 @@ class HomeViewController: UIViewController {
   private var lastContentOffset: CGFloat = 0
   private var isUp: Bool = false
   private let bag = DisposeBag()
-  private let youtubeItems = BehaviorRelay<[Video]>(value: [])
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -26,23 +25,9 @@ class HomeViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    videoListCollectionView.delegate = self
-    videoListCollectionView.dataSource = self
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     videoListCollectionView.register(UINib(nibName: "VideoListCell", bundle: nil), forCellWithReuseIdentifier: VideoListCell.identifier)
-    
-    youtubeItems
-      .asObservable()
-      .subscribe(onNext: { [weak self] el in
-        print("next", el.count)
-        self?.videoListCollectionView.reloadData()
-      }, onError: { (error) in
-        print(error)
-      }, onDisposed: {
-        print("disposed")
-      })
-      .disposed(by: bag)
-    
+    videoListCollectionView.rx.setDelegate(self).disposed(by: bag)
     
     fetchItems()
   }
@@ -73,9 +58,13 @@ class HomeViewController: UIViewController {
   func fetchItems() {
     youtubeClient
       .getMostPopularVideos()
-      .bind(to: youtubeItems)
+      .bind(to: videoListCollectionView.rx.items) { (collectionView: UICollectionView, row: Int, element: Video) in
+        let indexPath = IndexPath(row: row, section: 0)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
+        cell.video = element
+        return cell
+      }
       .disposed(by: bag)
-      
   }
 }
 
@@ -134,23 +123,11 @@ extension HomeViewController: UIScrollViewDelegate {
   }
 }
 
-extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension HomeViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     let width = self.view.frame.width
     
-    return .init(width: width, height: width - 50)
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    youtubeItems.value.count
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = videoListCollectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
-    
-    cell.video = youtubeItems.value[indexPath.item]
-    
-    return cell
+    return .init(width: width, height: width - 60)
   }
 }
 

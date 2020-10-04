@@ -24,4 +24,6 @@ struct VideoStatistics: Decodable {
   let dislikeCount: String
   let favoriteCount: String
   let commentCount: String?
+  
+  static let empty = VideoStatistics(viewCount: "", likeCount: "", dislikeCount: "", favoriteCount: "", commentCount: "")
 }
