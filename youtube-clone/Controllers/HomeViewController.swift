@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class HomeViewController: UIViewController {
   private let youtubeClient = YoutubeClient()
   private var lastContentOffset: CGFloat = 0
   private var isUp: Bool = false
+  private let bag = DisposeBag()
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -22,15 +25,11 @@ class HomeViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    videoListCollectionView.delegate = self
-    videoListCollectionView.dataSource = self
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     videoListCollectionView.register(UINib(nibName: "VideoListCell", bundle: nil), forCellWithReuseIdentifier: VideoListCell.identifier)
-    youtubeClient.search(q: "honkai") { (success) in
-      guard success else { return }
-      
-      self.videoListCollectionView.reloadData()
-    }
+    videoListCollectionView.rx.setDelegate(self).disposed(by: bag)
+    
+    fetchItems()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -54,6 +53,18 @@ class HomeViewController: UIViewController {
       let searchVC = segue.destination as! SearchViewController
       searchVC.delegate = self
     }
+  }
+  
+  func fetchItems() {
+    youtubeClient
+      .getMostPopularVideos()
+      .bind(to: videoListCollectionView.rx.items) { (collectionView: UICollectionView, row: Int, element: Video) in
+        let indexPath = IndexPath(row: row, section: 0)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
+        cell.video = element
+        return cell
+      }
+      .disposed(by: bag)
   }
 }
 
@@ -112,26 +123,13 @@ extension HomeViewController: UIScrollViewDelegate {
   }
 }
 
-extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension HomeViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     let width = self.view.frame.width
     
-    return .init(width: width, height: width - 50)
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    youtubeClient.searchItems.count
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = videoListCollectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
-    
-    cell.videoItem = youtubeClient.searchItems[indexPath.item]
-    
-    return cell
+    return .init(width: width, height: width - 60)
   }
 }
-
 
 extension HomeViewController: SearchViewControllerDelegate {
   func performSearchWith(text: String) {

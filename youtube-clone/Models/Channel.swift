@@ -2,21 +2,18 @@
 //  Channel.swift
 //  youtube-clone
 //
-//  Created by Yaku on 17/08/2020.
+//  Created by Yaku on 03/10/2020.
 //  Copyright © 2020 Uppercaseme. All rights reserved.
 //
 
 import Foundation
+import UIKit
 
-struct Channel: Decodable {
-  let items: [ChannelInfo]
-}
-
-struct ChannelInfo: Decodable {
+struct Channel {
   let id: String
-  let snippet: ChannelSnippet
-}
-
-struct ChannelSnippet: Decodable {
-  let thumbnails: Thumbnail
+  let image: UIImage?
+  let title: String
+  let description: String
+  
+  static let empty = Channel(id: "", image: nil, title: "", description: "")
 }

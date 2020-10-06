@@ -6,14 +6,11 @@
 //  Copyright © 2020 Uppercaseme. All rights reserved.
 //
 
-import Foundation
-import Alamofire
+import RxSwift
+import RxCocoa
 
 class YoutubeClient {
   static let apiKey = "AIzaSyAS_uiGtS1N0pwoRYxciYZ-l-xXHZEuMnE"
-  var searchItems: [Item] = []
-  var channelImages: [String: Data] = [:]
-  var videoMetadata: [String: VideoStatistics] = [:]
   
   enum Endpoints {
     static let base = "https://www.googleapis.com/youtube/v3"
@@ -22,6 +19,7 @@ class YoutubeClient {
     case search(q: String)
     case channels(id: String)
     case videos(id: String)
+    case popular
     
     var stringValue: String {
       switch self {
@@ -31,91 +29,100 @@ class YoutubeClient {
         return Endpoints.base + "/channels" + Endpoints.apiKeyParam + "&part=snippet&id=\(id)"
       case .videos(let id):
         return Endpoints.base + "/videos" + Endpoints.apiKeyParam + "&part=statistics&id=\(id)"
+      case .popular:
+        return Endpoints.base + "/videos" + Endpoints.apiKeyParam + "&part=statistics,snippet&chart=mostPopular"
       }
     }
     
-    var url: URL {
-      return URL(string: stringValue)!
+    var url: URL? {
+      return URL(string: stringValue)
     }
   }
   
-  func search(q: String, completionHandler: @escaping (Bool) -> Void) {
-    AF.request(Endpoints.search(q: q).url)
-      .responseDecodable(of: Search.self) { response in
-        guard let video = response.value else {
-          completionHandler(false)
-          return
+  func getMostPopularVideos() -> Observable<[Video]> {
+    guard let url = Endpoints.popular.url else { return Observable.empty() }
+    let sharedVideoResponse: Observable<VideoResponse> = Request.fetchJSON(url: url).share(replay: 1)
+    
+    let channels: Observable<[Channel]> = channelsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
+    let items: Observable<[VideoItemWithThumbnail]> = videoItemsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
+    
+    return Observable
+      .zip(items, channels)
+      .map { (items, channels) -> [Video] in
+        items.map { (item) -> Video in
+          Video(
+            id: item.id,
+            channelId: item.channelId,
+            title: item.title,
+            description: item.description,
+            statistics: item.statistics,
+            channel: channels.first(where: { $0.id == item.channelId }) ?? Channel.empty,
+            thumbnail: item.thumbnail,
+            publishedAt: item.publishedAt)
         }
-        self.searchItems = video.items.filter({ (item) -> Bool in
-          item.id.videoId != nil
-        })
-        self.loadImages(completionHandler: completionHandler)
       }
   }
   
-  func loadImages(completionHandler: @escaping (Bool) -> Void) {
-    // this looks terrible
-    let group = DispatchGroup() // refactor to use Rx or Combine
-    var channelImages: [String] = []
-    var videoIds: [String] = []
-    
-    for (index, item) in self.searchItems.enumerated() {
-      group.enter()
-      AF.request(item.snippet.thumbnails.medium.url).response { (response) in
-        self.searchItems[index].snippet.thumbnails.medium.image = response.data
-        group.leave()
+  private func channelsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[Channel]> {
+    videoResponse.flatMap({ (response) -> Observable<VideoItem> in
+      Observable.from(response.items)
+    })
+    .reduce([]) { (acc, videoItem) -> [String] in
+      let channelId = videoItem.snippet.channelId
+      
+      if acc.contains(channelId) {
+        return acc
       }
       
-      if let videoId = item.id.videoId {
-        videoIds.append(videoId)
+      return acc + [channelId]
+    }
+    .flatMap { (channels) -> Observable<[Channel]> in
+      guard let channelURL = Endpoints.channels(id: channels.joined(separator: ",")).url else {
+        return Observable.empty()
       }
-      
-      if channelImages.contains(item.snippet.channelId) {
-        continue
+      let channelsResponse: Observable<ChannelResponse> = Request.fetchJSON(url: channelURL)
+      return channelsResponse.flatMap { (response) -> Observable<[Channel]> in
+        Observable.zip(response.items.map({ self.getChannel(channelItem: $0) }))
       }
-      
-      channelImages.append(item.snippet.channelId)
+    }
+  }
+  
+  private func getChannel(channelItem: ChannelItem) -> Observable<Channel> {
+    guard let url = URL(string: channelItem.snippet.thumbnails.medium.url) else {
+      return Observable.empty()
     }
     
-    let channelsUrl = Endpoints.channels(id: channelImages.joined(separator: ",")).url
-    group.enter()
-    AF.request(channelsUrl).responseDecodable(of: Channel.self) { response in
-      guard let channels = response.value else {
-        group.leave()
-        return
-      }
-      
-      channels.items.forEach { (item) in
-        group.enter()
-        AF.request(item.snippet.thumbnails.medium.url).response { (response) in
-          self.channelImages[item.id] = response.data
-          group.leave()
-        }
-      }
-      group.leave()
+    return Request.fetch(url: url).map { (imageData) -> Channel in
+      Channel(
+        id: channelItem.id,
+        image: UIImage(data: imageData),
+        title: channelItem.snippet.title,
+        description: channelItem.snippet.description
+      )
+    }
+  }
+  
+  private func videoItemsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[VideoItemWithThumbnail]> {
+    videoResponse.flatMap { (response) -> Observable<[VideoItemWithThumbnail]> in
+      Observable.zip(response.items.map({ self.getVideo(videoItem: $0) }))
+    }
+  }
+  
+  private func getVideo(videoItem: VideoItem) -> Observable<VideoItemWithThumbnail> {
+    let thumbnailURLString = videoItem.snippet.thumbnails.medium.url
+    guard let thumbnailURL = URL(string: thumbnailURLString) else {
+      return Observable.empty()
     }
     
-    let videosUrl = Endpoints.videos(id: videoIds.joined(separator: ",")).url
-    group.enter()
-    AF.request(videosUrl).responseDecodable(of: Video.self) { response in
-      guard let videos = response.value else {
-        group.leave()
-        return
+    return Request.fetch(url: thumbnailURL)
+      .map { (imageData) -> VideoItemWithThumbnail in
+        VideoItemWithThumbnail(
+          id: videoItem.id,
+          channelId: videoItem.snippet.channelId,
+          title: videoItem.snippet.title,
+          description: videoItem.snippet.description,
+          statistics: videoItem.statistics,
+          thumbnail: UIImage(data: imageData), publishedAt: videoItem.snippet.publishedAt)
       }
-      
-      videos.items.forEach { (item) in
-        self.videoMetadata[item.id] = item.statistics
-      }
-      group.leave()
-    }
-    
-    group.notify(queue: .main) {
-      for (index, _) in self.searchItems.enumerated() {
-        self.searchItems[index].snippet.channelImage = self.channelImages[self.searchItems[index].snippet.channelId]
-        self.searchItems[index].id.statistics = self.videoMetadata[self.searchItems[index].id.videoId ?? ""]
-      }
-      
-      completionHandler(true)
-    }
   }
 }

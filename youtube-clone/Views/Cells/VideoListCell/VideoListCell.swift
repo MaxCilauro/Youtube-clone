@@ -11,20 +11,16 @@ import UIKit
 class VideoListCell: UICollectionViewCell {
   static let identifier = "videoCell"
   
-  var videoItem: Item? {
+  var video: Video? {
     didSet {
-      guard let videoItem = videoItem,
-            let thumbnailData = videoItem.snippet.thumbnails.medium.image,
-            let channelImage = videoItem.snippet.channelImage else {
-        return
-      }
+      guard let video = video else { return }
       
-      thumbnailImageView.image = UIImage(data: thumbnailData)
-      channelImageView.image = UIImage(data: channelImage)
+      thumbnailImageView.image = video.thumbnail
+      channelImageView.image = video.channel.image
       
-      titleLabel.text = videoItem.snippet.title
+      titleLabel.text = video.title
       
-      channelName.text = videoItem.snippet.channelTitle
+      channelName.text = video.channel.title
       metadataLabel.text = getMetadata()
     }
   }
@@ -41,10 +37,10 @@ class VideoListCell: UICollectionViewCell {
   }
   
   func getMetadata() -> String {
-    guard let item = videoItem, let stats = item.id.statistics else { return "" }
-    let views = stats.viewCount
+    guard let video = video else { return "" }
+    let views = video.statistics.viewCount
     let dateFormatter = ISO8601DateFormatter()
-    let date = dateFormatter.date(from: item.snippet.publishedAt)!
+    let date = dateFormatter.date(from: video.publishedAt)!
     let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
     return "\(views) views・\(components.day!)/\(components.month!)/\(components.year!)"
   }

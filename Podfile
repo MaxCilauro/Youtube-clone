@@ -6,7 +6,6 @@ target 'youtube-clone' do
   use_frameworks!
 
   # Pods for youtube-clone
-  pod 'Alamofire', '~> 5.2'
   pod 'RxSwift', '~> 5'
   pod 'RxCocoa', '~> 5'
 end

@@ -1,5 +1,5 @@
 //
-//  UIImage-Extension.swift
+//  UIImage+Resize.swift
 //  youtube-clone
 //
 //  Created by Yaku on 21/08/2020.
