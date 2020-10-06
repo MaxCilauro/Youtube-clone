@@ -1,14 +1,14 @@
 //
-//  VideoListCell.swift
+//  VideoListCollectionViewCell.swift
 //  youtube-clone
 //
-//  Created by Yaku on 11/08/2020.
+//  Created by Yaku on 06/10/2020.
 //  Copyright © 2020 Uppercaseme. All rights reserved.
 //
 
 import UIKit
 
-class VideoListCell: UICollectionViewCell {
+class VideoListCollectionViewCell: UICollectionViewCell {
   static let identifier = "videoCell"
   
   var video: Video? {
@@ -29,10 +29,33 @@ class VideoListCell: UICollectionViewCell {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var channelName: UILabel!
   @IBOutlet weak var metadataLabel: UILabel!
+  @IBOutlet private var maxWidthConstraint: NSLayoutConstraint! {
+    didSet {
+      maxWidthConstraint.isActive = false
+    }
+  }
   
+  var maxWidth: CGFloat? = nil {
+    didSet {
+      guard let maxWidth = maxWidth else {
+        return
+      }
+      maxWidthConstraint.isActive = true
+      maxWidthConstraint.constant = maxWidth
+    }
+  }
   override func awakeFromNib() {
     super.awakeFromNib()
     
+    contentView.translatesAutoresizingMaskIntoConstraints = false
+    
+    NSLayoutConstraint.activate([
+      contentView.leftAnchor.constraint(equalTo: leftAnchor),
+      contentView.rightAnchor.constraint(equalTo: rightAnchor),
+      contentView.topAnchor.constraint(equalTo: topAnchor),
+      contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+    ])
+
     channelImageView.layer.cornerRadius = channelImageView.frame.width / 2
   }
   
@@ -43,5 +66,11 @@ class VideoListCell: UICollectionViewCell {
     let date = dateFormatter.date(from: video.publishedAt)!
     let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
     return "\(views) views・\(components.day!)/\(components.month!)/\(components.year!)"
+  }
+  
+  override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
+    print("----holis-----")
+    print(super.systemLayoutSizeFitting(targetSize))
+    return super.systemLayoutSizeFitting(targetSize)
   }
 }
