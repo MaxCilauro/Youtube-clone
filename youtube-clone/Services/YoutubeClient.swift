@@ -10,7 +10,7 @@ import RxSwift
 import RxCocoa
 
 class YoutubeClient {
-  static let apiKey = "AIzaSyAS_uiGtS1N0pwoRYxciYZ-l-xXHZEuMnE"
+  static let apiKey = Secrets.youtubeApiKey.rawValue
   
   enum Endpoints {
     static let base = "https://www.googleapis.com/youtube/v3"
