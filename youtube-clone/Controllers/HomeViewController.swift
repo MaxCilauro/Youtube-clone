@@ -131,14 +131,6 @@ extension HomeViewController: UIScrollViewDelegate {
   }
 }
 
-//extension HomeViewController: UICollectionViewDelegateFlowLayout {
-//  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//    let width = self.view.frame.width
-//
-//    return .init(width: width, height: width - 60)
-//  }
-//}
-
 extension HomeViewController: SearchViewControllerDelegate {
   func performSearchWith(text: String) {
     print("search")

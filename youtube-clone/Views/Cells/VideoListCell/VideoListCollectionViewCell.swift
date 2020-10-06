@@ -69,8 +69,7 @@ class VideoListCollectionViewCell: UICollectionViewCell {
   }
   
   override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
-    print("----holis-----")
-    print(super.systemLayoutSizeFitting(targetSize))
+    print("---- Does this get called? -----")
     return super.systemLayoutSizeFitting(targetSize)
   }
 }
