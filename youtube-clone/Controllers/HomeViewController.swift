@@ -33,7 +33,6 @@ class HomeViewController: UIViewController {
     
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     videoListCollectionView.register(UINib(nibName: "VideoListCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: VideoListCollectionViewCell.identifier)
-    videoListCollectionView.rx.setDelegate(self).disposed(by: bag)
     
     fetchItems()
   }
@@ -48,6 +47,12 @@ class HomeViewController: UIViewController {
     super.viewWillDisappear(animated)
     
     self.navigationController?.setNavigationBarHidden(false, animated: false)
+  }
+  
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    videoListLayout.invalidateLayout()
+    videoListCollectionView.reloadData()
   }
   
   @IBAction func onSearchClick(_ sender: UIButton) {
