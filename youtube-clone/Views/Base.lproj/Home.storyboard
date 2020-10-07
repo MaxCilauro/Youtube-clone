@@ -114,6 +114,7 @@
                         <outlet property="headerTopConstraint" destination="WNw-0s-xMh" id="82r-mT-7cz"/>
                         <outlet property="headerView" destination="eXn-DD-0e4" id="n2y-Wv-hrQ"/>
                         <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
+                        <outlet property="videoListLayout" destination="evM-rE-Tby" id="6uS-IC-iC7"/>
                         <segue destination="t7Q-Sg-0Nm" kind="show" identifier="goToSearch" id="kk5-NC-zhg"/>
                     </connections>
                 </viewController>

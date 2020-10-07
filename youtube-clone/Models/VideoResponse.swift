@@ -20,8 +20,8 @@ struct VideoItem: Decodable {
 
 struct VideoStatistics: Decodable {
   let viewCount: String
-  let likeCount: String
-  let dislikeCount: String
+  let likeCount: String?
+  let dislikeCount: String?
   let favoriteCount: String
   let commentCount: String?
   

@@ -16,18 +16,23 @@ class HomeViewController: UIViewController {
   private var isUp: Bool = false
   private let bag = DisposeBag()
   
+  
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
   @IBOutlet weak var avatarImageView: UIImageView!
   @IBOutlet weak var headerTopConstraint: NSLayoutConstraint!
   @IBOutlet weak var headerHeightConstraint: NSLayoutConstraint!
-  
+  @IBOutlet weak var videoListLayout: UICollectionViewFlowLayout! {
+    didSet {
+      videoListLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
     
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
-    videoListCollectionView.register(UINib(nibName: "VideoListCell", bundle: nil), forCellWithReuseIdentifier: VideoListCell.identifier)
-    videoListCollectionView.rx.setDelegate(self).disposed(by: bag)
+    videoListCollectionView.register(UINib(nibName: "VideoListCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: VideoListCollectionViewCell.identifier)
     
     fetchItems()
   }
@@ -42,6 +47,12 @@ class HomeViewController: UIViewController {
     super.viewWillDisappear(animated)
     
     self.navigationController?.setNavigationBarHidden(false, animated: false)
+  }
+  
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    videoListLayout.invalidateLayout()
+    videoListCollectionView.reloadData()
   }
   
   @IBAction func onSearchClick(_ sender: UIButton) {
@@ -60,8 +71,10 @@ class HomeViewController: UIViewController {
       .getMostPopularVideos()
       .bind(to: videoListCollectionView.rx.items) { (collectionView: UICollectionView, row: Int, element: Video) in
         let indexPath = IndexPath(row: row, section: 0)
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCell.identifier, for: indexPath) as! VideoListCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCollectionViewCell.identifier, for: indexPath) as! VideoListCollectionViewCell
         cell.video = element
+        cell.maxWidth = collectionView.bounds.width
+        
         return cell
       }
       .disposed(by: bag)
@@ -120,14 +133,6 @@ extension HomeViewController: UIScrollViewDelegate {
     
     isUp = lastContentOffset > currentContentOffset
     lastContentOffset = currentContentOffset
-  }
-}
-
-extension HomeViewController: UICollectionViewDelegateFlowLayout {
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    let width = self.view.frame.width
-    
-    return .init(width: width, height: width - 60)
   }
 }
 
