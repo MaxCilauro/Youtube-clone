@@ -109,7 +109,7 @@ class YoutubeClient {
   }
   
   private func getVideo(videoItem: VideoItem) -> Observable<VideoItemWithThumbnail> {
-    let thumbnailURLString = videoItem.snippet.thumbnails.medium.url
+    let thumbnailURLString = videoItem.snippet.thumbnails.maxRes?.url ?? videoItem.snippet.thumbnails.medium.url
     guard let thumbnailURL = URL(string: thumbnailURLString) else {
       return Observable.empty()
     }
