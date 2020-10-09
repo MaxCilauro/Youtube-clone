@@ -67,9 +67,4 @@ class VideoListCollectionViewCell: UICollectionViewCell {
     let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
     return "\(views) views・\(components.day!)/\(components.month!)/\(components.year!)"
   }
-  
-  override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
-    print("---- Does this get called? -----")
-    return super.systemLayoutSizeFitting(targetSize)
-  }
 }
