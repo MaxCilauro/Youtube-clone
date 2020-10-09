@@ -31,6 +31,13 @@ struct Snippet: Decodable {
 struct Thumbnail: Decodable {
   let medium: ThumbnailInfo
   let high: ThumbnailInfo
+  let maxRes: ThumbnailInfo?
+  
+  enum CodingKeys: String, CodingKey {
+    case maxRes = "maxres"
+    case medium
+    case high
+  }
 }
 
 struct ThumbnailInfo: Decodable {

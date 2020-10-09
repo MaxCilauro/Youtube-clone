@@ -36,8 +36,8 @@
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0xQ-0v-3PH">
                                                 <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" secondItem="0xQ-0v-3PH" secondAttribute="height" multiplier="1:1" id="Xav-YD-Z6X"/>
-                                                    <constraint firstAttribute="width" constant="40" id="dey-jW-sP7"/>
+                                                    <constraint firstAttribute="width" secondItem="0xQ-0v-3PH" secondAttribute="height" multiplier="1:1" id="Y67-un-D2d"/>
+                                                    <constraint firstAttribute="width" constant="40" id="uwJ-UB-SHn"/>
                                                 </constraints>
                                             </imageView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Yo7-lx-ijh">
@@ -66,10 +66,6 @@
                                         </subviews>
                                     </stackView>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="3xY-n3-uw7" firstAttribute="centerX" secondItem="ZiS-Yt-hjV" secondAttribute="centerX" id="JVE-m0-cIq"/>
-                                    <constraint firstItem="3xY-n3-uw7" firstAttribute="width" secondItem="ZiS-Yt-hjV" secondAttribute="width" id="W6Z-Ol-l3n"/>
-                                </constraints>
                             </stackView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
