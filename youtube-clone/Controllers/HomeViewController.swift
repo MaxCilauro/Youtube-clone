@@ -35,7 +35,7 @@ class HomeViewController: UIViewController {
     toggleHeaderOnScroll()
     toggleMidAnimationHeader()
     
-    fetchItems()
+    fetchVideos()
     loadVideoList()
   }
   
@@ -68,7 +68,7 @@ class HomeViewController: UIViewController {
     }
   }
   
-  func fetchItems() {
+  func fetchVideos() {
     youtubeClient
       .getMostPopularVideos()
       .bind(to: videos)
