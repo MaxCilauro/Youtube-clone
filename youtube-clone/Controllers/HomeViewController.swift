@@ -12,10 +12,8 @@ import RxCocoa
 
 class HomeViewController: UIViewController {
   private let youtubeClient = YoutubeClient()
-  private var lastContentOffset: CGFloat = 0
-  private var isUp: Bool = false
   private let bag = DisposeBag()
-  
+  private let videos = BehaviorRelay<[Video]>(value: [])
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
@@ -34,7 +32,11 @@ class HomeViewController: UIViewController {
     avatarImageView.layer.cornerRadius = avatarImageView.frame.width / 2
     videoListCollectionView.register(UINib(nibName: "VideoListCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: VideoListCollectionViewCell.identifier)
     
-    fetchItems()
+    toggleHeaderOnScroll()
+    toggleMidAnimationHeader()
+    
+    fetchVideos()
+    loadVideoList()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -66,73 +68,100 @@ class HomeViewController: UIViewController {
     }
   }
   
-  func fetchItems() {
+  func fetchVideos() {
     youtubeClient
       .getMostPopularVideos()
+      .bind(to: videos)
+      .disposed(by: bag)
+  }
+  
+  func loadVideoList() {
+    videos
       .bind(to: videoListCollectionView.rx.items) { (collectionView: UICollectionView, row: Int, element: Video) in
         let indexPath = IndexPath(row: row, section: 0)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCollectionViewCell.identifier, for: indexPath) as! VideoListCollectionViewCell
         cell.video = element
         cell.maxWidth = collectionView.bounds.width
-        
+
         return cell
       }
       .disposed(by: bag)
   }
-}
+  
+  func toggleHeaderOnScroll() {
+    videoListScroll()
+      .subscribe(onNext: { (current, isScrollingDown) in
+        let steps: CGFloat = 5
+        let currentContentOffset = current.y
+        let headerHeight = self.headerHeightConstraint.constant
+        let alphaRatio = 1 / (headerHeight / steps)
+        let visibleItems = 3
+        
+        guard let presentIndexPath = self.videoListCollectionView.indexPathForItem(at: current) else { return }
+        // there should be a better way of checking if we are at the bottom of the collectionView
+        let isShowingBottomVideo = presentIndexPath.row >= self.videos.value.count - visibleItems
+        if currentContentOffset <= 0 || isShowingBottomVideo {
+          return
+        }
+        
 
-extension HomeViewController: UIScrollViewDelegate {
-  func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-    if (isUp && headerTopConstraint.constant == -headerHeightConstraint.constant) {
-      UIView.animate(withDuration: 0.2) { [weak self] in
-        self?.headerTopConstraint.constant = 0
-        self?.headerView.alpha = 1
-        self?.view.layoutIfNeeded()
-      }
-    }
+        if isScrollingDown && self.headerTopConstraint.constant > -headerHeight {
+          self.headerTopConstraint.constant -= steps
+          self.headerView.alpha -= alphaRatio
+          return
+        }
+
+        if !isScrollingDown && self.headerTopConstraint.constant < 0 {
+          self.headerTopConstraint.constant += steps
+          self.headerView.alpha += alphaRatio
+        }
+      })
+      .disposed(by: bag)
   }
   
-  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-    let headerHeight = self.headerHeightConstraint.constant
-    let headerHalfHeight = -headerHeight / 2
-    let currentTopConstrain = self.headerTopConstraint.constant
-    
-    if (currentTopConstrain == 0 || currentTopConstrain == -self.headerHeightConstraint.constant) {
-      return
-    }
-    
-    if currentTopConstrain > headerHalfHeight {
-      UIView.animate(withDuration: 0.1) { [weak self] in
-        self?.headerView.alpha = 1
-        self?.headerTopConstraint.constant = 0
-        self?.view.setNeedsLayout()
+  func videoListScroll() -> Observable<(CGPoint, Bool)> {
+    videoListCollectionView.rx.contentOffset
+      .scan([CGPoint(x: 0, y: 0), CGPoint(x: 0, y: 0)]) { (acc, point) -> [CGPoint] in
+        var pointsHistory = acc
+        pointsHistory.removeLast()
+        
+        pointsHistory.insert(point, at: 0)
+        
+        return pointsHistory
       }
-      return
-    }
-    
-    UIView.animate(withDuration: 0.1) { [weak self] in
-      self?.headerView.alpha = 0
-      self?.headerTopConstraint.constant = -headerHeight
-      self?.view.setNeedsLayout()
-    }
+      .map { (pointHistory) -> (CGPoint, Bool) in
+        (current: pointHistory[0], isScrollingDown: pointHistory[0].y > pointHistory[1].y)
+      }
   }
   
-  func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    let steps: CGFloat = 5
-    let currentContentOffset = scrollView.contentOffset.y
-    let alphaRatio = 1 / (headerHeightConstraint.constant / steps)
-    if headerTopConstraint.constant > -headerHeightConstraint.constant && !isUp && currentContentOffset > 0 {
-      headerTopConstraint.constant -= steps
-      headerView.alpha -= alphaRatio
-    }
-    
-    if isUp && headerTopConstraint.constant < 0 && currentContentOffset <= headerHeightConstraint.constant {
-      headerTopConstraint.constant += steps
-      headerView.alpha += alphaRatio
-    }
-    
-    isUp = lastContentOffset > currentContentOffset
-    lastContentOffset = currentContentOffset
+  func toggleMidAnimationHeader() {
+    videoListCollectionView.rx.didEndDragging
+      .asObservable()
+      .subscribe(onNext: { _ in
+        let headerHeight = self.headerHeightConstraint.constant
+        let headerHalfHeight = -headerHeight / 2
+        let currentTopConstrain = self.headerTopConstraint.constant
+        
+        if (currentTopConstrain == 0 || currentTopConstrain == -headerHeight) {
+          return
+        }
+        
+        if currentTopConstrain > headerHalfHeight {
+          UIView.animate(withDuration: 0.1) { [weak self] in
+            self?.headerView.alpha = 1
+            self?.headerTopConstraint.constant = 0
+            self?.view.setNeedsLayout()
+          }
+          return
+        }
+        
+        UIView.animate(withDuration: 0.1) { [weak self] in
+          self?.headerView.alpha = 0
+          self?.headerTopConstraint.constant = -headerHeight
+          self?.view.setNeedsLayout()
+        }
+      })
+      .disposed(by: bag)
   }
 }
 
