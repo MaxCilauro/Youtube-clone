@@ -95,7 +95,7 @@ class HomeViewController: UIViewController {
         let currentContentOffset = current.y
         let headerHeight = self.headerHeightConstraint.constant
         let alphaRatio = 1 / (headerHeight / steps)
-        let visibleItems = self.videoListCollectionView.indexPathsForVisibleItems.count
+        let visibleItems = 3
         
         guard let presentIndexPath = self.videoListCollectionView.indexPathForItem(at: current) else { return }
         // there should be a better way of checking if we are at the bottom of the collectionView
