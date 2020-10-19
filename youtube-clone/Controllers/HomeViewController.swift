@@ -14,9 +14,11 @@ class HomeViewController: UIViewController {
   private let youtubeClient = YoutubeClient()
   private let bag = DisposeBag()
   private let videos = BehaviorRelay<[Video]>(value: [])
+  private let search = PublishRelay<String>()
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var videoListCollectionView: UICollectionView!
+  @IBOutlet weak var searchButton: UIButton!
   @IBOutlet weak var avatarImageView: UIImageView!
   @IBOutlet weak var headerTopConstraint: NSLayoutConstraint!
   @IBOutlet weak var headerHeightConstraint: NSLayoutConstraint!
@@ -25,7 +27,7 @@ class HomeViewController: UIViewController {
       videoListLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
     }
   }
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -34,6 +36,21 @@ class HomeViewController: UIViewController {
     
     toggleHeaderOnScroll()
     toggleMidAnimationHeader()
+    
+    searchButton.rx
+      .tap
+      .bind {
+        self.performSegue(withIdentifier: "goToSearch", sender: nil)
+      }
+      .disposed(by: bag)
+    
+    search
+      .asObservable()
+      .delay(.milliseconds(10), scheduler: MainScheduler.instance)
+      .subscribe(onNext: { text in
+        self.performSegue(withIdentifier: "goToSearchResults", sender: text)
+      })
+      .disposed(by: bag)
     
     fetchVideos()
     loadVideoList()
@@ -57,14 +74,16 @@ class HomeViewController: UIViewController {
     videoListCollectionView.reloadData()
   }
   
-  @IBAction func onSearchClick(_ sender: UIButton) {
-    performSegue(withIdentifier: "goToSearch", sender: self)
-  }
-  
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     if segue.identifier == "goToSearch" {
       let searchVC = segue.destination as! SearchViewController
-      searchVC.delegate = self
+      searchVC.searchRelay = search
+      return
+    }
+    
+    if segue.identifier == "goToSearchResults" {
+      let searchResultsVC = segue.destination as! SearchResultsViewController
+      searchResultsVC.searchTerm = sender as? String
     }
   }
   
@@ -82,7 +101,7 @@ class HomeViewController: UIViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: VideoListCollectionViewCell.identifier, for: indexPath) as! VideoListCollectionViewCell
         cell.video = element
         cell.maxWidth = collectionView.bounds.width
-
+        
         return cell
       }
       .disposed(by: bag)
@@ -104,13 +123,13 @@ class HomeViewController: UIViewController {
           return
         }
         
-
+        
         if isScrollingDown && self.headerTopConstraint.constant > -headerHeight {
           self.headerTopConstraint.constant -= steps
           self.headerView.alpha -= alphaRatio
           return
         }
-
+        
         if !isScrollingDown && self.headerTopConstraint.constant < 0 {
           self.headerTopConstraint.constant += steps
           self.headerView.alpha += alphaRatio
@@ -162,11 +181,5 @@ class HomeViewController: UIViewController {
         }
       })
       .disposed(by: bag)
-  }
-}
-
-extension HomeViewController: SearchViewControllerDelegate {
-  func performSearchWith(text: String) {
-    print("search")
   }
 }

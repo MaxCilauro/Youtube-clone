@@ -21,7 +21,7 @@ class VideoListCollectionViewCell: UICollectionViewCell {
       titleLabel.text = video.title
       
       channelName.text = video.channel.title
-      metadataLabel.text = getMetadata()
+      metadataLabel.text = VideoHelpers.getMetadataFrom(video: video)
     }
   }
   @IBOutlet weak var thumbnailImageView: UIImageView!
@@ -57,14 +57,5 @@ class VideoListCollectionViewCell: UICollectionViewCell {
     ])
 
     channelImageView.layer.cornerRadius = channelImageView.frame.width / 2
-  }
-  
-  func getMetadata() -> String {
-    guard let video = video else { return "" }
-    let views = video.statistics.viewCount
-    let dateFormatter = ISO8601DateFormatter()
-    let date = dateFormatter.date(from: video.publishedAt)!
-    let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
-    return "\(views) views・\(components.day!)/\(components.month!)/\(components.year!)"
   }
 }

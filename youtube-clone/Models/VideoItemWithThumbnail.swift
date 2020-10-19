@@ -12,9 +12,10 @@ import UIKit
 struct VideoItemWithThumbnail {
   let id: String
   let channelId: String
+  let kind: String
   let title: String
   let description: String
-  let statistics: VideoStatistics
+  let statistics: Statistics
   let thumbnail: UIImage?
   let publishedAt: String
 }

@@ -15,10 +15,18 @@ struct ChannelResponse: Decodable {
 struct ChannelItem: Decodable {
   let id: String
   let snippet: ChannelSnippet
+  let statistics: ChannelStatistics
 }
 
 struct ChannelSnippet: Decodable {
   let thumbnails: Thumbnail
   let title: String
   let description: String
+}
+
+struct ChannelStatistics: Decodable {
+  let viewCount: String
+  let commentCount: String?
+  let subscriberCount: String
+  let videoCount: String
 }

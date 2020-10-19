@@ -70,9 +70,6 @@
                                                         </constraints>
                                                         <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <state key="normal" image="サーチアイコン"/>
-                                                        <connections>
-                                                            <action selector="onSearchClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rtP-du-ju8"/>
-                                                        </connections>
                                                     </button>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hanamichi_sakuragi_by_leagsaidh_dlvmdu-fullview" translatesAutoresizingMaskIntoConstraints="NO" id="v4p-PC-XPO">
                                                         <rect key="frame" x="100" y="0.0" width="25" height="25"/>
@@ -113,14 +110,26 @@
                         <outlet property="headerHeightConstraint" destination="Kam-pF-Cr4" id="hZP-0i-dPd"/>
                         <outlet property="headerTopConstraint" destination="WNw-0s-xMh" id="82r-mT-7cz"/>
                         <outlet property="headerView" destination="eXn-DD-0e4" id="n2y-Wv-hrQ"/>
+                        <outlet property="searchButton" destination="JDD-xw-olf" id="YCE-T9-pWa"/>
                         <outlet property="videoListCollectionView" destination="me5-bt-soL" id="qvr-H2-q4B"/>
                         <outlet property="videoListLayout" destination="evM-rE-Tby" id="6uS-IC-iC7"/>
-                        <segue destination="t7Q-Sg-0Nm" kind="show" identifier="goToSearch" id="kk5-NC-zhg"/>
+                        <segue destination="t7Q-Sg-0Nm" kind="show" identifier="goToSearch" animates="NO" id="kk5-NC-zhg"/>
+                        <segue destination="JjH-xl-u7p" kind="show" identifier="goToSearchResults" id="gi8-cQ-fdY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
+        </scene>
+        <!--SearchResults-->
+        <scene sceneID="bBp-cu-cVS">
+            <objects>
+                <viewControllerPlaceholder storyboardName="SearchResults" id="JjH-xl-u7p" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="cLe-x9-Fod"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pJQ-lh-CmZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="761" y="17"/>
         </scene>
         <!--Search-->
         <scene sceneID="SCf-DS-jFz">

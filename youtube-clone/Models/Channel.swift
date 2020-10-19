@@ -14,6 +14,8 @@ struct Channel {
   let image: UIImage?
   let title: String
   let description: String
+  let videoCount: String
+  let subscriberCount: String
   
-  static let empty = Channel(id: "", image: nil, title: "", description: "")
+  static let empty = Channel(id: "", image: nil, title: "", description: "", videoCount: "", subscriberCount: "")
 }
