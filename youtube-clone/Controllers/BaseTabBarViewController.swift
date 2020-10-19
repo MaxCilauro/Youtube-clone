@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BaseTabBarViewController: UITabBarController {
+class BaseTabBarViewController: BaseViewController {
   
   enum ControllerName: Int {
     case home, explore, subscriptions, notifications, library

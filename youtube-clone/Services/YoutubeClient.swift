@@ -18,16 +18,16 @@ class YoutubeClient {
     
     case search(q: String)
     case channels(id: String)
-    case videos(id: String)
+    case statistics(id: String)
     case popular
     
     var stringValue: String {
       switch self {
       case .search(let q):
-        return Endpoints.base + "/search" + Endpoints.apiKeyParam + "&part=snippet&q=\(q)"
+        return Endpoints.base + "/search" + Endpoints.apiKeyParam + "&part=snippet&q=\(q)&maxResults=10&type=channel,video"
       case .channels(let id):
-        return Endpoints.base + "/channels" + Endpoints.apiKeyParam + "&part=snippet&id=\(id)"
-      case .videos(let id):
+        return Endpoints.base + "/channels" + Endpoints.apiKeyParam + "&part=snippet,statistics&id=\(id)"
+      case .statistics(let id):
         return Endpoints.base + "/videos" + Endpoints.apiKeyParam + "&part=statistics&id=\(id)"
       case .popular:
         return Endpoints.base + "/videos" + Endpoints.apiKeyParam + "&part=statistics,snippet&chart=mostPopular"
@@ -39,13 +39,31 @@ class YoutubeClient {
     }
   }
   
+  func search(query: String) -> Observable<[Video]> {
+    guard let parsedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
+          let url = Endpoints.search(q: parsedQuery).url else {
+      return Observable.empty()
+    }
+    
+    return getVideosFrom(url: url)
+  }
+  
   func getMostPopularVideos() -> Observable<[Video]> {
     guard let url = Endpoints.popular.url else { return Observable.empty() }
-    let sharedVideoResponse: Observable<VideoResponse> = Request.fetchJSON(url: url).share(replay: 1)
+    
+    return getVideosFrom(url: url)
+  }
+  
+  private func getVideosFrom(url: URL) -> Observable<[Video]> {
+    let sharedVideoResponse: Observable<YoutubeResponse> = Request.fetchJSON(url: url).share(replay: 1)
     
     let channels: Observable<[Channel]> = channelsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
     let items: Observable<[VideoItemWithThumbnail]> = videoItemsWithThumbnailsFrom(videoResponse: sharedVideoResponse)
     
+    return generateVideosFor(items: items, with: channels)
+  }
+  
+  fileprivate func generateVideosFor(items: Observable<[VideoItemWithThumbnail]>, with channels: Observable<[Channel]>) -> Observable<[Video]> {
     return Observable
       .zip(items, channels)
       .map { (items, channels) -> [Video] in
@@ -53,6 +71,7 @@ class YoutubeClient {
           Video(
             id: item.id,
             channelId: item.channelId,
+            kind:  item.kind,
             title: item.title,
             description: item.description,
             statistics: item.statistics,
@@ -63,8 +82,8 @@ class YoutubeClient {
       }
   }
   
-  private func channelsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[Channel]> {
-    videoResponse.flatMap({ (response) -> Observable<VideoItem> in
+  private func channelsWithThumbnailsFrom(videoResponse: Observable<YoutubeResponse>) -> Observable<[Channel]> {
+    videoResponse.flatMap({ (response) -> Observable<YoutubeItem> in
       Observable.from(response.items)
     })
     .reduce([]) { (acc, videoItem) -> [String] in
@@ -97,32 +116,57 @@ class YoutubeClient {
         id: channelItem.id,
         image: UIImage(data: imageData),
         title: channelItem.snippet.title,
-        description: channelItem.snippet.description
+        description: channelItem.snippet.description,
+        videoCount: channelItem.statistics.videoCount,
+        subscriberCount: channelItem.statistics.subscriberCount
       )
     }
   }
   
-  private func videoItemsWithThumbnailsFrom(videoResponse: Observable<VideoResponse>) -> Observable<[VideoItemWithThumbnail]> {
+  private func videoItemsWithThumbnailsFrom(videoResponse: Observable<YoutubeResponse>) -> Observable<[VideoItemWithThumbnail]> {
     videoResponse.flatMap { (response) -> Observable<[VideoItemWithThumbnail]> in
-      Observable.zip(response.items.map({ self.getVideo(videoItem: $0) }))
+      Observable.zip(response.items.map({ self.getVideo(youtubeItem: $0) }))
     }
   }
   
-  private func getVideo(videoItem: VideoItem) -> Observable<VideoItemWithThumbnail> {
-    let thumbnailURLString = videoItem.snippet.thumbnails.maxRes?.url ?? videoItem.snippet.thumbnails.medium.url
+  private func getVideo(youtubeItem: YoutubeItem) -> Observable<VideoItemWithThumbnail> {
+    let thumbnailURLString = youtubeItem.snippet.thumbnails.maxRes?.url ?? youtubeItem.snippet.thumbnails.medium.url
     guard let thumbnailURL = URL(string: thumbnailURLString) else {
       return Observable.empty()
     }
     
-    return Request.fetch(url: thumbnailURL)
-      .map { (imageData) -> VideoItemWithThumbnail in
-        VideoItemWithThumbnail(
-          id: videoItem.id,
-          channelId: videoItem.snippet.channelId,
-          title: videoItem.snippet.title,
-          description: videoItem.snippet.description,
-          statistics: videoItem.statistics,
-          thumbnail: UIImage(data: imageData), publishedAt: videoItem.snippet.publishedAt)
+    let statistics = getStatistics(for: youtubeItem)
+    let thumbnail = Request.fetch(url: thumbnailURL)
+    return Observable.zip(statistics, thumbnail).map({ (statistics, imageData) -> VideoItemWithThumbnail in
+      VideoItemWithThumbnail(
+        id: youtubeItem.itemId.id ?? "",
+        channelId: youtubeItem.snippet.channelId,
+        kind: youtubeItem.itemId.kind ?? youtubeItem.kind,
+        title: youtubeItem.snippet.title,
+        description: youtubeItem.snippet.description,
+        statistics: statistics,
+        thumbnail: UIImage(data: imageData), publishedAt: youtubeItem.snippet.publishedAt
+      )
+    })
+  }
+  
+  private func getStatistics(for youtubeItem: YoutubeItem) -> Observable<Statistics> {
+    if let statistics = youtubeItem.statistics {
+      return Observable.just(statistics)
+    }
+    
+    guard let id = youtubeItem.itemId.id, let url = Endpoints.statistics(id: id).url else {
+      return Observable.empty()
+    }
+    
+    let videoListResponse: Observable<StatisticsResponse> = Request.fetchJSON(url: url)
+    
+    return videoListResponse.map { (response) -> Statistics in
+      guard let statistics = response.items.first?.statistics else {
+        return Statistics.empty
       }
+      
+      return statistics
+    }
   }
 }

@@ -7,61 +7,111 @@
 //
 
 import UIKit
-
-protocol SearchViewControllerDelegate {
-  func performSearchWith(text:String)
-}
+import RxSwift
+import RxCocoa
 
 class SearchViewController: UIViewController  {
-  let historyKey = "history"
-  let historyTableCellIdentifier = "historyCell"
-  var closeButton = UIBarButtonItem()
-  var searchTextField = UITextField()
-  var history: [String] = []
-  var delegate: SearchViewControllerDelegate?
+  var searchRelay: PublishRelay<String>!
+  var searchTerm: String?
+  
+  private let historyKey = "history"
+  private let historyTableCellIdentifier = "historyCell"
+  private var clearButton: UIBarButtonItem?
+  private var searchTextField = UITextField()
+  private var history = BehaviorRelay<[String]>(value: [])
+  private let bag = DisposeBag()
   
   @IBOutlet weak var searchHistoryTableView: UITableView!
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    closeButton = UIBarButtonItem.init(barButtonSystemItem: .close, target: self, action: #selector(clearTextField))
-    history = UserDefaults.standard.array(forKey: historyKey) as? [String] ?? []
+    let crossImage = UIImage(named: "cross")?.resize(size: CGSize(width: 16, height: 16))
+    let customClearButton = UIBarButtonItem(image: crossImage, style: .plain, target: self, action: #selector(clearTextField))
+    customClearButton.tintColor = .label
+    clearButton = customClearButton
+    
+    let savedHistory = UserDefaults.standard.array(forKey: historyKey) as? [String] ?? []
+    history.accept(savedHistory)
+    
     setupSearch()
+  }
+  
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    
     setupSearchHistory()
   }
   
   func setupSearch() {
-    searchTextField.delegate = self
-    searchTextField.translatesAutoresizingMaskIntoConstraints = true
+    searchTextField.frame = CGRect(x: 0, y: 0, width: 400, height: 30)
     searchTextField.placeholder = "Search on youtube"
     searchTextField.textAlignment = .left
     searchTextField.returnKeyType = .search
+    searchTextField.text = searchTerm
+
+    navigationItem.titleView = searchTextField
     
-    self.navigationItem.titleView = searchTextField
+    searchTextField.becomeFirstResponder()
+    subscribeToSearchEvents()
+  }
+  
+  func subscribeToSearchEvents() {
+    searchTextField.rx.controlEvent(.editingDidEndOnExit)
+      .asObservable()
+      .subscribe(onNext: {
+        guard let text = self.searchTextField.text, !text.isEmpty else { return }
+        let updatedHistory = [text] + self.history.value
+        self.history.accept(updatedHistory)
+        UserDefaults.standard.set(updatedHistory, forKey: self.historyKey)
+        
+        self.searchRelay.accept(text)
+        self.closeSearch()
+      })
+      .disposed(by: bag)
+    
+    searchTextField.rx.text.orEmpty
+      .subscribe { (controlProperty) in
+        guard let text = controlProperty.element else {
+          self.toggleClearButton(isVisible: false)
+          return
+        }
+        self.toggleClearButton(isVisible: text != "")
+        
+      }
+      .disposed(by: bag)
   }
   
   fileprivate func setupSearchHistory() {
-    searchHistoryTableView.delegate = self
-    searchHistoryTableView.dataSource = self
+    history
+      .bind(to: searchHistoryTableView.rx.items) { (tableView: UITableView, row: Int, element: String) in
+        let cell = tableView.dequeueReusableCell(withIdentifier: self.historyTableCellIdentifier, for: IndexPath(row: row, section: 0))
+        
+        cell.imageView?.image = UIImage(systemName: "clock")
+        cell.textLabel?.text = element
+        
+        return cell
+      }
+      .disposed(by: bag)
     
-    searchHistoryTableView.reloadData()
-  }
-  
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    
-    searchTextField.becomeFirstResponder()
+    searchHistoryTableView.rx.itemSelected
+      .asObservable()
+      .subscribe(onNext: { [weak self] indexPath in
+        guard let self = self else { return }
+        self.searchRelay.accept(self.history.value[indexPath.row])
+        self.closeSearch()
+      })
+      .disposed(by: bag)
   }
   
   @objc func clearTextField() {
     searchTextField.text = ""
-    isClearButtonVisible(false)
+    toggleClearButton(isVisible: false)
   }
   
-  func isClearButtonVisible(_ isVisible: Bool) {
+  func toggleClearButton(isVisible: Bool) {
     if isVisible {
       if navigationItem.rightBarButtonItem == nil {
-        navigationItem.rightBarButtonItem = closeButton
+        navigationItem.rightBarButtonItem = clearButton
       }
       return
     }
@@ -70,51 +120,10 @@ class SearchViewController: UIViewController  {
   }
   
   func closeSearch() {
-    self.navigationController?.popViewController(animated: true)
+    self.navigationController?.popViewController(animated: false)
   }
 }
 
-extension SearchViewController: UITextFieldDelegate {
-  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-    guard let text = textField.text else { return false }
-    history.append(text)
-    UserDefaults.standard.set(history, forKey: historyKey)
-    
-    delegate?.performSearchWith(text: text)
-    closeSearch()
-    return true
-  }
+extension UIViewController {
   
-  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    if let text = textField.text, let textRange = Range(range, in: text) {
-      let updatedText = text.replacingCharacters(in: textRange, with: string)
-      
-      isClearButtonVisible(updatedText != "")
-      return true
-    }
-    
-    isClearButtonVisible(false)
-    return true
-  }
-}
-
-
-extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    history.count
-  }
-  
-  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = searchHistoryTableView.dequeueReusableCell(withIdentifier: historyTableCellIdentifier, for: indexPath)
-    
-    cell.imageView?.image = UIImage(systemName: "clock")
-    cell.textLabel?.text = history[indexPath.row] as String
-    
-    return cell
-  }
-  
-  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    delegate?.performSearchWith(text: history[indexPath.row])
-    closeSearch()
-  }
 }
